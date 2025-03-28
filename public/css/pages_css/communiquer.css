@@ -1,0 +1,9 @@
+#communication-content{
+    background-color: var(--white);
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 80vw;
+    border-radius: 10px;
+    width: 100%;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}

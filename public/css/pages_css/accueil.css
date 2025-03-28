@@ -1,0 +1,200 @@
+/* Accueil Page Styles */
+#accueil-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+    border-radius: 10px;
+    color: var(--white);
+
+}
+
+#accueil_title {
+    text-align: center;
+    padding: 10px;
+    margin-top: 100px;
+    color: var(--white);
+    font-size: xx-large;
+}
+
+#accueil_title h3 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+}
+
+.shops_title{
+    font-size: 1.5em;
+}
+
+#accueil_title img {
+    max-width: 150px;
+    margin: 20px 0;
+}
+
+#state_adhesion {
+    text-align: center;
+    margin-top: 20px;
+    padding: 20px;
+    background-color: var(--lightGray);
+    border-radius: 20px;
+    color: var(--darkBlue);
+}
+
+#state_adhesion h4 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+#state_adhesion p {
+    font-size: 1.1em;
+    margin-bottom: 10px;
+}
+
+#state_adhesion a {
+    display: inline-block;
+    background-color: var(--lightYellow);
+    color: var(--white);
+    padding: 10px 20px;
+    text-decoration: none;
+    font-size: 1.1em;
+    font-weight: bold;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+#state_adhesion a:hover {
+    background-color: var(--darkYellow);
+    transform: scale(1.05);
+}
+
+#valid{
+    color: limegreen;
+}
+
+#not_valid{
+    color: var(--red);
+}
+
+/* Boutique Cards Section */
+.shops {
+    text-align: center;
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100vw;
+}
+
+#billeteries{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    color: var(--darkBlue);
+}
+
+#activites{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    color: var(--white);
+}
+
+.shops-cards {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+    width: 70%;
+}
+
+.boutique-card {
+    background: var(--lightGray);
+    border-radius: 8px;
+    overflow: hidden;
+    width: 200px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s;
+    display: flex;
+    flex-direction: column;
+    color: var(--darkBlue);
+    font-size: small;
+    justify-content: space-between; /* Espace entre le contenu et le bouton */
+
+}
+
+
+.boutique-card:hover {
+    transform: scale(1.05);
+}
+
+.boutique-image {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+}
+
+.boutique-title {
+    margin: 10px 0;
+    color: var(--darkBlue);
+    font-size:medium;
+}
+
+.boutique-description {
+    padding: 0 15px;
+    color: var(--darkBlue);
+    font-size: 1.1em;
+}
+
+.boutique-link {
+    display: inline-block;
+    margin: 10px;
+    padding: 10px 20px;
+    background: var(--lightYellow);
+    color: var(--white);
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background 0.2s;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+
+}
+
+.boutique-link:hover {
+    background: var(--darkYellow);
+    transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+    .shops-cards {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .boutique-card {
+        width: 80%;
+    }
+}
+
+@media (max-width: 480px) {
+    .boutique-card {
+        width: 90%;
+    }
+
+    .boutique-title {
+        font-size: 1.2em;
+    }
+
+    .boutique-description {
+        font-size: 1em;
+    }
+
+    .boutique-link {
+        padding: 8px 16px;
+        font-size: 1em;
+    }
+}

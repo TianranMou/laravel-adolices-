@@ -1,0 +1,66 @@
+/* register Form */
+#register-container {
+    background-color: var(--white);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    min-width: 50%;
+    border-radius: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    margin: 150px auto;
+    max-width: 400px;
+    padding: 30px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+}
+
+label {
+    font-weight: bold;
+}
+
+button[type="submit"] {
+    background-color: var(--darkBlue);
+    color: #FBFEF9;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    margin-top: 15px;
+}
+
+
+/* Error Message */
+div ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 15px;
+    text-align: center;
+}
+
+form .form-label.required::after {
+    content: ' *';
+    font-weight: bold;
+}
+
+/* Style du lien */
+#register-container a {
+    color: var(--darkBlue);
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 15px;
+    display: inline-block;
+}
+
+#register-container a:hover {
+    color: var(--primaryColor); /* Utilisez ici la couleur que vous souhaitez */
+    text-decoration: underline;
+    transition: color 0.3s ease, text-decoration 0.3s ease;
+}

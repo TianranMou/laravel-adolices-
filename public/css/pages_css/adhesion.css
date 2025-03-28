@@ -1,0 +1,63 @@
+/* adhesion Page Styles */
+#adhesion-container {
+    background-color: var(--white);
+    padding: 20px;
+    width: 50vw;
+    margin: 20px auto;
+    max-width: 900px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+h3 {
+    text-align: center;
+    font-size: 2.5em;
+    color: var(--white);
+    margin-top: 100px;
+    margin-bottom: 200px;
+    font-weight: bold;
+}
+
+#adhesion_title img {
+    max-width: 150px;
+    margin: 20px 0;
+}
+
+#state_adhesion {
+    text-align: center;
+    margin-top: 20px;
+}
+
+#state_adhesion h4 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+#state_adhesion p {
+    font-size: 1.1em;
+    margin-bottom: 10px;
+}
+
+#state_adhesion a {
+    display: inline-block;
+    background-color: var(--lightYellow);
+    color: var(--white);
+    padding: 10px 20px;
+    text-decoration: none;
+    font-size: 1.1em;
+    font-weight: bold;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+#state_adhesion a:hover {
+    background-color: #45A049;
+    transform: scale(1.05);
+}
+
+#valid{
+    color: limegreen;
+}
+
+#not_valid{
+    color: var(--red);
+}

@@ -1,0 +1,68 @@
+/* Login Form */
+#content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    border-radius: 20px;
+    margin: 20px auto;
+    min-width: 50%;
+    max-width: 400px;
+    padding: 30px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+label {
+    font-weight: bold;
+}
+
+#login-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 200px;
+    width: 80%;
+    background-color: var(--white);
+    padding: 20px;
+    max-width: 900px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+button[type="submit"] {
+    background-color: var(--darkBlue);
+    color: var(--white);
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1.1em;
+    transition: background-color 0.2s ease;
+    margin-top: 15px;
+}
+
+/* Error Message */
+#error {
+    margin-top: 15px;
+}
+
+
+/* Style du lien */
+#login-container a {
+    text-align: center;
+    color: var(--darkBlue);
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 15px;
+    display: inline-block;
+}
+
+#login-container a:hover {
+    color: var(--primaryColor); /* Utilisez ici la couleur que vous souhaitez */
+    text-decoration: underline;
+    transition: color 0.3s ease, text-decoration 0.3s ease;
+}
