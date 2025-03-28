@@ -7,32 +7,38 @@
 @section('head')
     <link rel="stylesheet" href="{{ asset('css/bootstrap.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.bootstrap5.min.css">
+    <link rel="stylesheet" href="{{ asset('css/dataTables.bootstrap5.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/buttons.bootstrap5.min.css') }}">
 @endsection
 
 @section('content')
     <div class="container mt-4">
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <div class="d-flex align-items-center">
-                    <select id="schoolYear" class="form-select me-3">
-                        <option value="all">Tout</option>
-                        <option value="2023" {{ isset($year) && $year == '2023' ? 'selected' : '' }}>2023-2024</option>
-                        <option value="2024" {{ isset($year) && $year == '2024' ? 'selected' : '' }}>2024-2025</option>
-                        <option value="2025" {{ isset($year) && $year == '2025' ? 'selected' : '' }}>2025-2026</option>
-                    </select>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="showAdherentsOnly">
-                        <label class="form-check-label" for="showAdherentsOnly">
-                            Afficher uniquement les adhérents
-                        </label>
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center gap-4">
+                            <div class="flex-grow-1">
+                                <select id="schoolYear" class="form-select">
+                                    <option value="all">Tout</option>
+                                    @for ($year = env('FIRST_SCHOOL_YEAR'); $year <= date('Y'); $year++)
+                                        <option value="{{ $year }}">{{ $year . '-' . ($year + 1) }}</option>
+                                    @endfor
+                                </select>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="showAdherentsOnly" style="width: 3em; height: 1.5em;">
+                                <label class="form-check-label ms-2 text-muted" for="showAdherentsOnly">
+                                    <i class="fa fa-users me-2"></i>Afficher uniquement les adhérents
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 text-end">
+            <div class="col-md-4 text-end d-flex align-items-center justify-content-end">
                 <button class="btn btn-primary" id="addAdherent">
-                    <i class="fa fa-plus"></i> Ajouter un adhérent
+                    <i class="fa fa-plus me-2"></i> Ajouter un adhérent
                 </button>
             </div>
         </div>
@@ -132,23 +138,31 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="adhesion">
+                            <div class="form-check form-switch d-flex align-items-center gap-2">
+                                <input type="checkbox" role="switch" class="form-check-input" id="adhesion" style="width: 3em; height: 1.5em;">
                                 <label class="form-check-label" for="adhesion">Adhésion</label>
                             </div>
                         </div>
                         <div class="mb-3">
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="photo_release">
+                            <div class="form-check form-switch d-flex align-items-center gap-2">
+                                <input type="checkbox" role="switch" class="form-check-input" id="photo_release" style="width: 3em; height: 1.5em;">
                                 <label class="form-check-label" for="photo_release">Publication des photos</label>
                             </div>
                         </div>
                         <div class="mb-3">
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="photo_consent">
+                            <div class="form-check form-switch d-flex align-items-center gap-2">
+                                <input type="checkbox" role="switch" class="form-check-input" id="photo_consent" style="width: 3em; height: 1.5em;">
                                 <label class="form-check-label" for="photo_consent">Prise en photo</label>
                             </div>
                         </div>
+                        <hr>
+                        <h5>Membres de la famille</h5>
+                        <div id="familyMembersContainer">
+                            <!-- Family members will be added here dynamically -->
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-sm mb-3" id="addFamilyMember">
+                            <i class="fa fa-plus"></i> Ajouter un membre
+                        </button>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -192,384 +206,12 @@
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('js/jquery-3.6.0.min.js') }}"></script>
+    <script src="{{ asset('js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('js/dataTables.bootstrap5.min.js') }}"></script>
+    <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
     <script>
-        $(document).ready(function() {
-            // Add this at the beginning of your script
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-
-            // Initialize DataTable
-            const table = $('#adherentsTable').DataTable({
-                language: {
-                    "emptyTable": "Aucune donnée disponible dans le tableau",
-                    "info": "Affichage de _START_ à _END_ sur _TOTAL_ entrées",
-                    "infoEmpty": "Affichage de 0 à 0 sur 0 entrée",
-                    "infoFiltered": "(filtré de _MAX_ entrées au total)",
-                    "infoThousands": ",",
-                    "lengthMenu": "Afficher _MENU_ entrées",
-                    "loadingRecords": "Chargement...",
-                    "processing": "Traitement...",
-                    "search": "Rechercher :",
-                    "zeroRecords": "Aucun élément correspondant trouvé",
-                    "paginate": {
-                        "first": "Premier",
-                        "last": "Dernier",
-                        "next": "Suivant",
-                        "previous": "Précédent"
-                    },
-                    "aria": {
-                        "sortAscending": ": activer pour trier la colonne par ordre croissant",
-                        "sortDescending": ": activer pour trier la colonne par ordre décroissant"
-                    },
-                    "select": {
-                        "rows": {
-                            "_": "%d lignes sélectionnées",
-                            "1": "1 ligne sélectionnée"
-                        }
-                    }
-                },
-                order: [[0, 'asc']],
-                pageLength: 25,
-                createdRow: function(row, data, dataIndex) {
-                    // Get the adhesion status from column 6 (Adhesion column)
-                    const hasAdhesion = data[6] === 'Oui';
-                    $(row).attr('data-has-active-adhesion', hasAdhesion ? 'true' : 'false');
-                }
-            });
-
-            // Filter adherents checkbox handler
-            $('#showAdherentsOnly').change(function() {
-                const showOnlyAdherents = $(this).is(':checked');
-
-                $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-                    if (!showOnlyAdherents) return true;
-                    return data[6] === 'Oui';
-                });
-
-                table.draw();
-
-                $.fn.dataTable.ext.search.pop();
-            });
-
-            // School year change handler
-            $('#schoolYear').change(function() {
-                const year = $(this).val().split('-')[0];
-
-                // Show loading indicator
-                table.clear().draw();
-                $('tbody').append('<tr><td colspan="8" class="text-center">Chargement des données...</td></tr>');
-
-                // If "all" is selected, use the initial data
-                if (year === 'all') {
-                    const initialData = @json($users);
-                    table.clear();
-
-                    if (initialData && initialData.length > 0) {
-                        initialData.forEach(function(user) {
-                            let adhesionDate = 'N/A';
-                            if (user.adhesions && user.adhesions.length > 0) {
-                                const date = new Date(user.adhesions[0].date_adhesion);
-                                adhesionDate = date.toLocaleDateString('fr-FR');
-                            }
-
-                            table.row.add([
-                                user.last_name,
-                                user.first_name,
-                                user.group?.label_group || 'N/A',
-                                user.sites?.[0]?.label_site || 'N/A',
-                                user.family_members?.child_nb || '0',
-                                user.family_members?.spouse === 'true' ? 'Oui' : 'Non',
-                                user.adhesions?.[0] ? 'Oui' : 'Non',
-                                adhesionDate,
-                                `<button class="btn btn-sm btn-primary edit-adherent" data-id="${user.user_id}">
-                                    <i class="fa fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger delete-adherent" data-id="${user.user_id}">
-                                    <i class="fa fa-trash"></i>
-                                </button>`
-                            ]).draw();
-                        });
-                    } else {
-                        table.clear().draw();
-                        $('tbody').append('<tr><td colspan="8" class="text-center">Aucun utilisateur trouvé</td></tr>');
-                    }
-
-                    // Update URL without page reload
-                    const url = new URL(window.location);
-                    url.searchParams.delete('year');
-                    window.history.pushState({}, '', url);
-
-                    // Reattach event handlers
-                    attachEventHandlers();
-                    return;
-                }
-
-                // For specific years, use the API endpoint
-                $.ajax({
-                    url: `/adherents/year/${year}`,
-                    method: 'GET',
-                    dataType: 'json',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    success: function(response) {
-                        // Clear the table
-                        table.clear();
-
-                        // Process and add each user to the table
-                        if (response.adherents && response.adherents.length > 0) {
-                            response.adherents.forEach(function(user) {
-                                let adhesionDate = 'N/A';
-                                if (user.adhesions && user.adhesions.length > 0) {
-                                    const date = new Date(user.adhesions[0].date_adhesion);
-                                    adhesionDate = date.toLocaleDateString('fr-FR');
-                                }
-
-                                // Format data for display
-                                let childrenCount = user.family_members?.child_nb || '0';
-                                let hasSpouse = user.family_members?.spouse === 'true' ? 'Oui' : 'Non';
-                                let site = user.sites?.[0]?.label_site || 'N/A';
-                                let groupLabel = user.group?.label_group || 'N/A';
-
-                                table.row.add([
-                                    user.last_name,
-                                    user.first_name,
-                                    groupLabel,
-                                    site,
-                                    childrenCount,
-                                    hasSpouse,
-                                    user.adhesions?.[0] ? 'Oui' : 'Non',
-                                    adhesionDate,
-                                    `<button class="btn btn-sm btn-primary edit-adherent" data-id="${user.user_id}">
-                                        <i class="fa fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-danger delete-adherent" data-id="${user.user_id}">
-                                        <i class="fa fa-trash"></i>
-                                    </button>`
-                                ]).draw();
-                            });
-                        } else {
-                            // No users found
-                            table.clear().draw();
-                            $('tbody').append('<tr><td colspan="8" class="text-center">Aucun utilisateur trouvé pour cette année</td></tr>');
-                        }
-
-                        // Update URL without page reload
-                        const url = new URL(window.location);
-                        url.searchParams.set('year', year);
-                        window.history.pushState({}, '', url);
-
-                        // Reattach event handlers to the newly created buttons
-                        attachEventHandlers();
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error fetching users:', error);
-                        console.log('Response text:', xhr.responseText);
-                        table.clear().draw();
-                        $('tbody').append('<tr><td colspan="8" class="text-center">Erreur lors du chargement des données</td></tr>');
-                    }
-                });
-            });
-
-            function attachEventHandlers() {
-                // Edit adherent button handler
-                $('.edit-adherent').click(function() {
-                    const userId = $(this).data('id');
-
-                    // Fetch adherent data
-                    $.ajax({
-                        url: `/adherents/${userId}`,
-                        method: 'GET',
-                        success: function(response) {
-                            console.log('Received adherent data:', response);
-
-                            // Populate the form with adherent data
-                            $('#userId').val(response.user_id);
-                            $('#lastName').val(response.last_name);
-                            $('#firstName').val(response.first_name);
-                            $('#email').val(response.email);
-                            $('#email_imt').val(response.email_imt);
-                            $('#phone_number').val(response.phone_number);
-                            $('#service').val(response.group_id);
-
-                            // Handle site selection
-                            if (response.site_id) {
-                                $('#site').val(response.site_id);
-                                console.log('Setting site_id:', response.site_id);
-                            } else {
-                                console.log('No site_id found in response');
-                            }
-
-                            $('#status').val(response.status_id);
-                            $('#adhesion').prop('checked', response.adhesion_valid);
-                            $('#photo_release').prop('checked', response.photo_release);
-                            $('#photo_consent').prop('checked', response.photo_consent);
-
-                            // Show the modal
-                            $('#adherentModal').modal('show');
-                        },
-                        error: function(xhr, status, error) {
-                            console.error('Error fetching adherent data:', error);
-                            showToast('Une erreur est survenue lors du chargement des données de l\'adhérent', 'error');
-                        }
-                    });
-                });
-
-                // Function for confirmation
-                function showConfirmation(message, callback) {
-                    $('#confirmationMessage').text(message);
-                    $('#confirmationModal').modal('show');
-
-                    // Remove any existing click handlers
-                    $('#confirmDelete').off('click');
-
-                    // Add new click handler
-                    $('#confirmDelete').on('click', function() {
-                        $('#confirmationModal').modal('hide');
-                        callback();
-                    });
-                }
-
-                // Delete handler
-                $('.delete-adherent').click(function() {
-                    const userId = $(this).data('id');
-                    const adherentName = $(this).closest('tr').find('td:first').text() + ' ' + $(this).closest('tr').find('td:nth-child(2)').text();
-
-                    showConfirmation(`Êtes-vous sûr de vouloir supprimer l'adhérent ${adherentName} ?`, function() {
-                        $.ajax({
-                            url: `/adherents/${userId}`,
-                            method: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            },
-                            success: function(response) {
-                                console.log('Success:', response);
-                                // Remove the row from the DataTable
-                                const row = $(this).closest('tr');
-                                table.row(row).remove().draw();
-
-                                // Show success message using toast
-                                showToast('Adhérent supprimé avec succès', 'success');
-                            },
-                            error: function(xhr, status, error) {
-                                console.error('Error details:', {
-                                    status: xhr.status,
-                                    response: xhr.responseText,
-                                    error: error
-                                });
-
-                                // Handle errors, show message to user
-                                let errorMessage = 'Une erreur est survenue lors de la suppression';
-                                if (xhr.responseJSON && xhr.responseJSON.message) {
-                                    errorMessage = xhr.responseJSON.message;
-                                }
-                                showToast(errorMessage, 'error');
-                            }
-                        });
-                    });
-                });
-            }
-
-            // Initial attachment of event handlers
-            attachEventHandlers();
-
-            // Add adherent button handler
-            $('#addAdherent').click(function() {
-                $('#adherentForm')[0].reset();
-                $('#userId').val('');
-                $('#adherentModal').modal('show');
-            });
-
-            // Save adherent handler
-            $('#saveAdherent').click(function() {
-                const formData = {
-                    last_name: $('#lastName').val(),
-                    first_name: $('#firstName').val(),
-                    email: $('#email').val(),
-                    email_imt: $('#email_imt').val(),
-                    phone_number: $('#phone_number').val(),
-                    group_id: $('#service').val(),
-                    site_id: $('#site').val(),
-                    status_id: $('#status').val(),
-                    adhesion_valid: $('#adhesion').is(':checked') ? 1 : 0,
-                    photo_release: $('#photo_release').is(':checked') ? 1 : 0,
-                    photo_consent: $('#photo_consent').is(':checked') ? 1 : 0
-                };
-
-                // Debug log
-                console.log('Form values:', {
-                    site_id: $('#site').val(),
-                    service: $('#service').val(),
-                    status: $('#status').val()
-                });
-                console.log('Sending data:', formData);
-
-                const userId = $('#userId').val();
-                const url = userId ? `/adherents/${userId}` : '/adherents';
-                const method = userId ? 'PUT' : 'POST';
-
-                $.ajax({
-                    url: url,
-                    method: method,
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    data: formData,
-                    success: function(response) {
-                        console.log('Success:', response);
-                        // Close the modal
-                        $('#adherentModal').modal('hide');
-                        // Show success message
-                        showToast('Adhérent enregistré avec succès', 'success');
-                        // Refresh the table or update the row
-                        location.reload();
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error details:', {
-                            status: xhr.status,
-                            response: xhr.responseText,
-                            error: error
-                        });
-
-                        // Handle errors, show message to user
-                        let errorMessage = 'Une erreur est survenue lors de la sauvegarde';
-                        if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            errorMessage = Object.values(xhr.responseJSON.errors).flat().join('\n');
-                        } else if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMessage = xhr.responseJSON.message;
-                        }
-                        showToast(errorMessage, 'error');
-                    }
-                });
-            });
-
-            function showToast(message, type = 'success') {
-                const toast = $('#toast');
-                const toastBody = toast.find('.toast-body');
-                const toastHeader = toast.find('.toast-header');
-
-                // Set the message
-                toastBody.text(message);
-
-                // Set the icon and color based on type
-                if (type === 'success') {
-                    toastHeader.find('i').removeClass().addClass('fa fa-check-circle me-2 text-success');
-                } else if (type === 'error') {
-                    toastHeader.find('i').removeClass().addClass('fa fa-exclamation-circle me-2 text-danger');
-                }
-
-                // Show the toast
-                const bsToast = new bootstrap.Toast(toast);
-                bsToast.show();
-            }
-        });
+        window.initialUsers = @json($users);
     </script>
+    <script src="{{ asset('js/pages_js/Adherents.js') }}"></script>
 @endsection

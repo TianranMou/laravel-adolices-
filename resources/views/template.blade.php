@@ -59,24 +59,32 @@
                     </div>
                 </button>
             </div>
-            <a class="userSpace" href="{{ isset($current_user) ? route('profile') : route('login') }}">
+            <bouton class="userSpace" id="userSpace">
                 @if(isset($current_user))
                     @if (isset($userImage)&&file_exists($userImage))
-                        <img id="userImage" src="{{asset($userImage)}}" alt="">
+                        <img id="userImage" src="{{asset($userImage)}}" alt=""><!--TODO add user image-->
                     @else
                         <img id="userImage" src="{{asset("images/UserPhotos/DefaultUser.png")}}" alt="">
                     @endif
                     <p><strong>{{$current_user->first_name}}</strong></p>
-                    <p>{{$current_user->last_name}}</p>
+                    <!--<p>{{$current_user->last_name}}</p>!-->
                 @else
                     <i class="fa-solid fa-user-slash" id="disconected-user-image"></i>
                     <p>Se Connecter</p>
                 @endif
-            </a>
+            </bouton>
             <div id="title">
                 <h1>Adolices</h1>
             </div>
         </section>
+        <div id="userMenu">
+            @if(isset($current_user))
+                <a href="{{ route('profile') }}">Mon Profil</a>
+                <a href="{{ route('logout') }}">Se Déconnecter</a>
+            @else
+                <a href="{{ route('login') }}">Se Connecter</a>
+            @endif
+        </div>
         <div id="menu-container">
             @php
                 $currentTitle = trim(View::yieldContent('title') ?? '');
@@ -90,7 +98,7 @@
                 @endforeach
                 @if ($current_user->is_admin??false)
                     <div id="adminSeparator"></div>
-                    <p id="adminSeparatorText">Pages d'administrations:</p>
+                    <p id="adminSeparatorText">Pages d'administration</p>
                     @foreach ($adminPages as $page_title => $link )
                         <a href={{ $link }} class="admin_page" {{ $currentTitle == $page_title ? ' id=selectedPage' : '' }}>{{ $page_title }}</a>
                     @endforeach
@@ -98,7 +106,7 @@
             @endif
         </div>
         <div id="menu-overlay"></div>
-
+        <div id="user-overlay"></div>
         <section id="content">
             @if (!(isset($admin_page)&&$admin_page))
                 <img id=background_image src="{{asset('images/background_image.avif')}}" alt="">
@@ -109,6 +117,7 @@
         <section id="footer">
 
         </section>
+        @yield('scripts')
     </body>
 
 </html>

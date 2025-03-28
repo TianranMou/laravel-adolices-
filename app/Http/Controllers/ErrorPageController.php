@@ -21,6 +21,6 @@ class ErrorPageController extends Controller
         $errorMessage = $errorMessages[$errorId] ?? $errorMessages['404'];
 
         // Passer la variable d'erreur à la vue
-        return view('error', compact('errorId', 'errorMessage'));
+        return view('error', compact('errorId','errorMessage'));
     }
 }

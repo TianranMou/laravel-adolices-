@@ -37,6 +37,8 @@ class DatabaseSeeder extends Seeder
 
             SubventionSeeder::class,
             TicketSeeder::class,
+
+            FamilyRelationSeeder::class,
             FamilyMemberSeeder::class,
         ]);
     }

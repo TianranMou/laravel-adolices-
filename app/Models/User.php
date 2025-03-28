@@ -114,20 +114,20 @@ class User extends Authenticatable
     public function hasUpToDateAdhesion(): bool
     {
         $adhesionMonthDay = env('ADHESION_MONTH_DAY');
-    
+
         [$month, $day] = explode('-', $adhesionMonthDay);
-    
+
         $startDate = Carbon::createFromDate(now()->year, $month, $day);
         $endDate = Carbon::now();
-    
+
         foreach ($this->adhesions as $adhesion) {
             $adhesionDate = Carbon::parse($adhesion->date_adhesion);
-    
+
             if ($adhesionDate->between($startDate, $endDate, true)) {
                 return true;
             }
         }
-    
+
         return false;
     }
 
@@ -167,8 +167,8 @@ class User extends Authenticatable
                         'label_group' => $user->group->label_group
                     ],
                     'family_members' => [
-                        'spouse' => $user->familyMembers->contains('relation', 'spouse') ? 'true' : 'false',
-                        'child_nb' => $user->familyMembers->where('relation', 'child')->count()
+                        'spouse' => $user->familyMembers->contains('relation_id', 2) ? 'true' : 'false',
+                        'child_nb' => $user->familyMembers->where('relation_id', 1)->count()
                     ],
                     'sites' => $user->sites->map(function ($site) {
                         return [
@@ -207,8 +207,8 @@ class User extends Authenticatable
                     'label_group' => $user->group->label_group
                 ],
                 'family_members' => [
-                    'spouse' => $user->familyMembers->contains('relation', 'spouse') ? 'true' : 'false',
-                    'child_nb' => $user->familyMembers->where('relation', 'child')->count()
+                    'spouse' => $user->familyMembers->contains('relation_id', 2) ? 'true' : 'false',
+                    'child_nb' => $user->familyMembers->where('relation_id', 1)->count()
                 ],
                 'sites' => $user->sites->map(function ($site) {
                     return [

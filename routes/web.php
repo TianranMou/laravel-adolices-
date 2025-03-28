@@ -14,7 +14,7 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SubventionController;
 use App\Http\Controllers\PdfController;
-
+use App\Http\Controllers\AchatsController;
 //pages
 use App\Http\Controllers\ErrorPageController;
 use App\Http\Controllers\AccueilPageController;
@@ -22,13 +22,10 @@ use App\Http\Controllers\ReglementInterieurPageController;
 use App\Http\Controllers\BureauPageController;
 use App\Http\Controllers\AdhesionPageController ;
 use App\Http\Controllers\AchatsPageController;
-
-
+use App\Http\Controllers\BoutiquesPageController;
 
 if(env("APP_DEBUG")){
-    Route::get('/test', function() {
-        return view('Communiquer');
-    });
+    Route::get('/test',[BoutiquesPageController::class, 'index']);
 }
 
 
@@ -60,7 +57,7 @@ Route::get('/reglement-interieur', [ReglementInterieurPageController::class, 'in
 // Bureau
 Route::get('/bureau', [BureauPageController::class, 'index'])->name('bureau');
 // achats
-Route::get('/achats', [AchatsPageController::class, 'index'])->name('achats');
+Route::get('/achats', [AchatsController::class, 'index'])->name('achats');
 //Demande subvention
 Route::get('/subvention_inquiry', [SubventionController::class, 'index']);
 Route::post('/subvention_inquiry', [SubventionController::class, 'store'])->name('subventions.store');
@@ -75,6 +72,9 @@ Route::prefix('profile')->middleware('auth')->group(function(){
 
 });
 
+//page achats
+Route::get('/achats', [AchatsController::class, 'index'])->name('achats');
+
 // apply auth middleware to all routes in this group
 Route::middleware('auth')->group(function () {
     // Adhesion routes
@@ -84,11 +84,20 @@ Route::middleware('auth')->group(function () {
         // This route needs admin privileges
         Route::get('/{userId}', [AdhesionController::class, 'getAdhesionsByUser'])->middleware('admin');
     });
+
+    // Subvention users routes
+    Route::prefix('subventions')->name('subventions.')->group(function () {
+        Route::get('/create', [SubventionController::class, 'create'])->name('create');
+        Route::post('/', [SubventionController::class, 'store'])->name('store');
+    });
 });
+
+
+
 
 // apply both auth and admin middleware to all routes in this group
 Route::middleware(['auth', 'admin'])->group(function () {
-    // Adherents Page
+    // Adherents routes
     Route::prefix('adherents')->group(function () {
         Route::get('/', [AdherentController::class, 'index'])->name('adherents');
         Route::get('/{user_id}', [AdherentController::class, 'getAdherent']);
@@ -96,6 +105,14 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::put('/{user_id}', [AdherentController::class, 'updateAdherent']);
         Route::delete('/{user_id}', [AdherentController::class, 'deleteAdherent']);
         Route::get('/year/{year}', [AdherentController::class, 'getAdherentsByYear']);
+        Route::delete('/{user_id}/family-members/{member_id}', [AdherentController::class, 'deleteFamilyMember']);
+    });
+
+    // Subventions admin routes
+    Route::prefix('subventions')->name('subventions.')->group(function () {
+        Route::get('/', [SubventionController::class, 'index'])->name('index');
+        Route::post('/{id}/validate', [SubventionController::class, 'validate'])->name('validate');
+        Route::post('/{id}/refuse', [SubventionController::class, 'refuse'])->name('refuse');
     });
 });
 
@@ -122,15 +139,4 @@ Route::prefix('dematerialized-tickets')->name('dematerialized-tickets.')->group(
     Route::get('/{id}', [DematerializedTicketController::class, 'show'])->name('show');
     Route::get('/{id}/edit', [DematerializedTicketController::class, 'edit'])->name('edit');
     Route::put('/{id}', [DematerializedTicketController::class, 'update'])->name('update');
-});
-
-Route::prefix('subventions')->name('subventions.')->group(function () {
-    // User routes
-    Route::get('/create', [SubventionController::class, 'create'])->name('create');
-    Route::post('/', [SubventionController::class, 'store'])->name('store');
-
-    // Admin routes
-    Route::get('/', [SubventionController::class, 'index'])->name('index');
-    Route::post('/{id}/validate', [SubventionController::class, 'validate'])->name('validate');
-    Route::post('/{id}/refuse', [SubventionController::class, 'refuse'])->name('refuse');
 });

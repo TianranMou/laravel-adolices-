@@ -50,44 +50,73 @@ class AdherentController extends Controller
             'photo_release' => 'sometimes|boolean',
             'photo_consent' => 'sometimes|boolean',
             'adhesion_valid' => 'sometimes|boolean',
+            'family_members' => 'sometimes|array',
+            'family_members.*.name_member' => 'required|string|max:191',
+            'family_members.*.first_name_member' => 'required|string|max:191',
+            'family_members.*.birth_date_member' => 'required|date',
+            'family_members.*.relation_id' => 'required|exists:family_relation,relation_id'
         ]);
 
         $password = $this->generatePassword();
         $validated['password'] = bcrypt($password);
         $validated['is_admin'] = false;
 
-        $user = User::create($validated);
+        try {
+            DB::beginTransaction();
 
-        if (isset($validated['adhesion_valid']) && $validated['adhesion_valid']) {
-            $adhesion_valid = $validated['adhesion_valid'];
-        } else {
-            $adhesion_valid = false;
-        }
+            $user = User::create($validated);
 
-        if ($user) {
-            $adhesion = Adhesion::createForUser($user->user_id);
-            $site_user = SiteUser::create([
-                'site_id' => $validated['site_id'],
-                'user_id' => $user->user_id
-            ]);
+            if (isset($validated['adhesion_valid']) && $validated['adhesion_valid']) {
+                $adhesion_valid = $validated['adhesion_valid'];
+            } else {
+                $adhesion_valid = false;
+            }
+
+            if ($user) {
+                $adhesion = Adhesion::createForUser($user->user_id);
+                $site_user = SiteUser::create([
+                    'site_id' => $validated['site_id'],
+                    'user_id' => $user->user_id
+                ]);
+
+                // Handle family members
+                if (isset($validated['family_members'])) {
+                    foreach ($validated['family_members'] as $member) {
+                        $user->familyMembers()->create([
+                            'name_member' => $member['name_member'],
+                            'first_name_member' => $member['first_name_member'],
+                            'birth_date_member' => $member['birth_date_member'],
+                            'relation_id' => $member['relation_id']
+                        ]);
+                    }
+                }
+
+                DB::commit();
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Adhérent ajouté avec succès',
+                    'data' => [
+                        'user' => $user,
+                        'adhesion' => $adhesion,
+                        'password' => $password,
+                        'site_user' => $site_user
+                    ]
+                ], 201);
+            }
+
+            DB::rollBack();
             return response()->json([
-                'status' => 'success',
-                'message' => 'Adhérent ajouté avec succès',
-                'data' => [
-                    'user' => $user,
-                    'adhesion' => $adhesion,
-                    'password' => $password,
-                    'site_user' => $site_user
-                ]
-            ], 201);
-            // quand la vue sera implémentée
-            // return redirect()->route('adherents')->with(['success' => 'Adhérent ajoutée avec succès', 'user' => $user, 'adhesion' => $adhesion, 'password' => $password]);
+                'status' => 'erreur',
+                'message' => 'Aucun adhérent n\'a été ajouté',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'erreur',
+                'message' => 'Erreur lors de l\'ajout de l\'adhérent: ' . $e->getMessage(),
+            ], 500);
         }
-
-        return response()->json([
-            'status' => 'erreur',
-            'message' => 'Aucun adhérent n\'a été ajoutée',
-        ]);
     }
 
     /**
@@ -132,7 +161,7 @@ class AdherentController extends Controller
             $year = date('Y');
         }
 
-        // Convert year to integer
+        // config la date dans le .env
         $year = (int)$year;
         $startDate = $year . '-09-01';
         $endDate = ($year + 1) . '-08-31';
@@ -174,31 +203,71 @@ class AdherentController extends Controller
             'photo_release' => 'sometimes|boolean',
             'photo_consent' => 'sometimes|boolean',
             'adhesion_valid' => 'sometimes|boolean',
+            'family_members' => 'sometimes|array',
+            'family_members.*.name_member' => 'required|string|max:191',
+            'family_members.*.first_name_member' => 'required|string|max:191',
+            'family_members.*.birth_date_member' => 'required|date',
+            'family_members.*.relation_id' => 'required|exists:family_relation,relation_id'
         ]);
 
-        $user->update($validated);
+        try {
+            DB::beginTransaction();
 
-        if (isset($validated['site_id'])) {
-            SiteUser::where('user_id', $user_id)->update([
-                'site_id' => $validated['site_id']
-            ]);
+            // Update user data
+            $userData = array_filter($validated, function($key) {
+                return !in_array($key, ['family_members', 'adhesion_valid']);
+            }, ARRAY_FILTER_USE_KEY);
+
+            $user->update($userData);
+
+            // Handle site update
+            if (isset($validated['site_id'])) {
+                SiteUser::where('user_id', $user_id)->update([
+                    'site_id' => $validated['site_id']
+                ]);
+            }
+
+            // Handle adhesion
+            if (isset($validated['adhesion_valid']) && $validated['adhesion_valid'] && !$user->hasUpToDateAdhesion()) {
+                $adhesion = Adhesion::createForUser($user->user_id);
+                $adhesionData = $adhesion;
+            } else {
+                $adhesionData = $user->adhesions()->orderBy('date_adhesion', 'desc')->first();
+            }
+
+            // Handle family members
+            if (isset($validated['family_members'])) {
+                // Delete existing family members
+                $user->familyMembers()->delete();
+
+                // Add new family members
+                foreach ($validated['family_members'] as $member) {
+                    $user->familyMembers()->create([
+                        'name_member' => $member['name_member'],
+                        'first_name_member' => $member['first_name_member'],
+                        'birth_date_member' => $member['birth_date_member'],
+                        'relation_id' => $member['relation_id']
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Adhérent mis à jour avec succès',
+                'data' => [
+                    'user' => $user,
+                    'adhesion' => $adhesionData
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'erreur',
+                'message' => 'Erreur lors de la mise à jour de l\'adhérent: ' . $e->getMessage(),
+            ], 500);
         }
-
-        if (isset($validated['adhesion_valid']) && $validated['adhesion_valid'] && !$user->hasUpToDateAdhesion()) {
-            $adhesion = Adhesion::createForUser($user->user_id);
-            $adhesionData = $adhesion;
-        } else {
-            $adhesionData = $user->adhesions()->orderBy('date_adhesion', 'desc')->first();
-        }
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Adhérent mis à jour avec succès',
-            'data' => [
-                'user' => $user,
-                'adhesion' => $adhesionData
-            ]
-        ], 200);
     }
 
     /**
@@ -270,7 +339,7 @@ class AdherentController extends Controller
      */
     public function getAdherent($user_id)
     {
-        $user = User::with(['group', 'sites', 'adhesions'])->find($user_id);
+        $user = User::with(['group', 'sites', 'adhesions', 'familyMembers'])->find($user_id);
 
         if (!$user) {
             return response()->json([
@@ -292,5 +361,50 @@ class AdherentController extends Controller
         $userData['adhesion_valid'] = $adhesion_valid;
 
         return response()->json($userData);
+    }
+
+    /**
+     * Delete a family member
+     *
+     * @param int $user_id The ID of the adherent
+     * @param int $member_id The ID of the family member to delete
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteFamilyMember($user_id, $member_id)
+    {
+        try {
+            DB::beginTransaction();
+
+            // Find the family member
+            $familyMember = DB::table('family_members')
+                ->where('member_id', $member_id)
+                ->where('user_id', $user_id)
+                ->first();
+
+            if (!$familyMember) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Membre de la famille non trouvé'
+                ], 404);
+            }
+
+            // Delete the family member
+            DB::table('family_members')
+                ->where('member_id', $member_id)
+                ->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Membre de la famille supprimé avec succès'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Erreur lors de la suppression du membre de la famille: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

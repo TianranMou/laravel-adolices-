@@ -23,7 +23,7 @@
         <section class="shops">
             @if(!empty($shops))
                 <div id="activites">
-                    <h3 id="shops_title">Activités</h3>
+                    <h3 id="shops_title">Événements/Sorties</h3>
                     <div class="shops-cards">
                         @foreach ($shops as $shop)
                             <div class="boutique-card">

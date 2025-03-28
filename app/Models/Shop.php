@@ -42,12 +42,20 @@ class Shop extends Model
         return $this->hasMany(Product::class, 'shop_id', 'shop_id');
     }
 
+    public static function getAllAvalableShops()
+    {
+        return self::where('is_active', true)
+                    ->where(function ($query) {
+                        $query->where('end_date', '>=', now())
+                              ->orWhereNull('end_date');
+                    })->get();
+    }
+
     public function administrators(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'administrator', 'shop_id', 'user_id')
                     ->withTimestamps();
     }
-
     protected static function boot()
     {
         parent::boot();

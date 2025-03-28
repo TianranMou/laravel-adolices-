@@ -30,14 +30,15 @@ class AccueilPageController extends Controller
             $adhesion_valid = $current_user ? $current_user->hasUpToDateAdhesion() : false;
         }
         // Données des shops
-        //TODO $allShops = Shop::getAvalableShops();
-        $allShops = Shop::all();
+        $allShops = Shop::getAllAvalableShops();
+        //$allShops = Shop::all();
         $shops = [];
         $billeteries = [];
         foreach ($allShops as $key => $value) {
             if(!$value->end_date ){
                 $shops[$key] = $value;
-            }else{
+            }
+            else{
                 $billeteries[$key] = $value;
             }
         }

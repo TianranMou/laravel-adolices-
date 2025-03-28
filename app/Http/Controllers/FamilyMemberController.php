@@ -27,7 +27,7 @@ class FamilyMemberController extends Controller
             'name_member' => 'required|string|max:255',
             'birth_date_member' => 'required|date',
             'first_name_member' => 'required|string|max:255',
-            'relation' => 'required|string|max:255',
+            'relation_id' => 'required|exists:family_relation,relation_id',
         ]);
 
         $familyMember = FamilyMember::create($validatedData);
@@ -65,7 +65,7 @@ class FamilyMemberController extends Controller
             'name_member' => 'sometimes|required|string|max:255',
             'birth_date_member' => 'sometimes|required|date',
             'first_name_member' => 'sometimes|required|string|max:255',
-            'relation' => 'sometimes|required|string|max:255',
+            'relation_id' => 'sometimes|required|exists:family_relation,relation_id',
         ]);
 
         $familyMember->update($validatedData);

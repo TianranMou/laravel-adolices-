@@ -4,36 +4,28 @@ namespace App\Http\Controllers;
 
 use App\Models\Ticket;
 use App\Models\Product;
-use \App\Models\User;
+use App\Models\User;
 use App\Models\Site;
 use Illuminate\Http\Request;
 
 class DematerializedTicketController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth'); 
+    }
+
     public function index(Request $request)
     {
-        $query = Ticket::select('ticket.*')
-            ->join('product', 'ticket.product_id', '=', 'product.product_id')
-            ->where('product.dematerialized', true)
-            ->with(['produit', 'user', 'site']);
-
-        if ($request->has('user_id')) {
-            $query->where('ticket.user_id', $request->input('user_id'));
-        }
-
-        $tickets = $query->get();
+        $user_id = $request->input('user_id');
+        $tickets = Ticket::getDematerializedTickets($user_id);
 
         return view('dematerialized-tickets.index', compact('tickets'));
     }
 
     public function show($id)
     {
-        $ticket = Ticket::select('ticket.*')
-            ->join('product', 'ticket.product_id', '=', 'product.product_id')
-            ->where('product.dematerialized', true)
-            ->where('ticket.ticket_id', $id)
-            ->with(['produit', 'user', 'site'])
-            ->first();
+        $ticket = Ticket::getDematerializedTicketById($id);
 
         if (!$ticket) {
             abort(404, 'Dematerialized ticket not found.');
@@ -44,12 +36,7 @@ class DematerializedTicketController extends Controller
 
     public function edit($id)
     {
-        $ticket = Ticket::select('ticket.*')
-            ->join('product', 'ticket.product_id', '=', 'product.product_id')
-            ->where('product.dematerialized', true)
-            ->where('ticket.ticket_id', $id)
-            ->with(['produit', 'user', 'site'])
-            ->first();
+        $ticket = Ticket::getDematerializedTicketById($id);
 
         if (!$ticket) {
             abort(404, 'Dematerialized ticket not found.');
@@ -59,17 +46,12 @@ class DematerializedTicketController extends Controller
         $products = Product::where('dematerialized', true)->get();
         $sites = Site::all();
 
-
         return view('dematerialized-tickets.edit', compact('ticket', 'users', 'products', 'sites'));
     }
 
     public function update(Request $request, $id)
     {
-        $ticket = Ticket::select('ticket.*')
-            ->join('product', 'ticket.product_id', '=', 'product.product_id')
-            ->where('product.dematerialized', true)
-            ->where('ticket.ticket_id', $id)
-            ->first();
+        $ticket = Ticket::getDematerializedTicketById($id);
 
         if (!$ticket) {
             abort(404, 'Dematerialized ticket not found.');
@@ -79,9 +61,9 @@ class DematerializedTicketController extends Controller
             'user_id' => 'required|exists:users,user_id',
             'product_id' => 'required|exists:product,product_id',
             'site_id' => 'required|exists:site,site_id',
-            'ticket_link' => 'required|string|max:255', 
+            'ticket_link' => 'required|string|max:255',
             'partner_code' => 'required|string|max:255',
-            'partner_id' => 'required|string|max:255', 
+            'partner_id' => 'required|string|max:255',
             'validity_date' => 'required|date',
             'purchase_date' => 'required|date',
         ]);

@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
-class Ticket extends Model {
-
+class Ticket extends Model
+{
     use HasFactory;
     protected $table = 'ticket';
     protected $primaryKey = 'ticket_id';
@@ -44,6 +44,40 @@ class Ticket extends Model {
     public function site(): BelongsTo
     {
         return $this->belongsTo(Site::class, 'site_id', 'site_id');
+    }
+
+ 
+    public function scopeDematerialized($query)
+    {
+        return $query->join('product', 'ticket.product_id', '=', 'product.product_id')
+                     ->where('product.dematerialized', true)
+                     ->select('ticket.*');
+    }
+
+    public static function getDematerializedTickets($user_id = null)
+    {
+        $query = static::dematerialized()->with(['produit', 'site', 'user']);
+        
+        if ($user_id) {
+            $query->where('ticket.user_id', $user_id);
+        }
+
+        return $query->get();
+    }
+
+
+    public static function getDematerializedTicketById($ticket_id)
+    {
+        return static::dematerialized()
+                     ->where('ticket.ticket_id', $ticket_id)
+                     ->with(['produit', 'site', 'user'])
+                     ->first();
+    }
+
+
+    public static function getTicketByUserId($user_id)
+    {
+        return static::where('user_id', $user_id)->get();
     }
 
     protected static function boot()

@@ -21,7 +21,7 @@ class FamilyMemberFactory extends Factory
             'name_member' => $this->faker->lastName,
             'birth_date_member' => $this->faker->date,
             'first_name_member' => $this->faker->firstName,
-            'relation' => $this->faker->word,
+            'relation_id' => $this->faker->randomElement([1, 2]),
         ];
     }
 }

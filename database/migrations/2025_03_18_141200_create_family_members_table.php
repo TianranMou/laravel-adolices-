@@ -19,7 +19,7 @@ class CreateFamilyMembersTable extends Migration
             $table->string('name_member');
             $table->date('birth_date_member');
             $table->string('first_name_member');
-            $table->string('relation');
+            $table->foreignId('relation_id')->constrained('family_relation', 'relation_id');
         });
     }
 

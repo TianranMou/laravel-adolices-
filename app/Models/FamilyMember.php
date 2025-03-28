@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use App\Models\{User, FamilyRelation};
 
 class FamilyMember extends Model
 {
@@ -21,7 +22,7 @@ class FamilyMember extends Model
         'name_member',
         'birth_date_member',
         'first_name_member',
-        'relation'
+        'relation_id'
     ];
 
     protected $casts = [
@@ -31,6 +32,11 @@ class FamilyMember extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
+    }
+
+    public function family_relation(): BelongsTo
+    {
+        return $this->belongsTo(FamilyRelation::class, 'relation_id', 'relation_id');
     }
 
     protected static function boot()
@@ -43,7 +49,7 @@ class FamilyMember extends Model
                 'name_member' => 'required|string|max:255',
                 'first_name_member' => 'required|string|max:255',
                 'birth_date_member' => 'nullable|date',
-                'relation' => 'required|string|max:255'
+                'relation_id' => 'required|exists:family_relation,relation_id'
             ]);
 
             if ($validator->fails()) {
