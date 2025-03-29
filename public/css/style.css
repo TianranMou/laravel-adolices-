@@ -1,3 +1,4 @@
+
 :root{
     --white: #FFFFFF;
     --darkBlue: #0C2340;
@@ -23,7 +24,7 @@ body {
     min-height: 100vh;
 }
 
-/* Header Section */
+/* Updated Header Section */
 #header {
     background-color: var(--darkBlue);
     color: var(--white);
@@ -33,9 +34,32 @@ body {
     padding: 10px 20px;
     position: fixed;
     height: 100px;
-    width: 100%; /* Fixes the width to span the entire viewport */
-    box-sizing: border-box; /* Ensures padding and border are included in width */
+    width: 100%;
+    box-sizing: border-box;
     z-index: 100;
+}
+
+#logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#header #logo img {
+    height: 50px;
+    width: auto;
+    border-radius: 10px;
+}
+
+#header #menu-toggle {
+    margin-right: 10px;
+}
+
+#logo {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
 }
 
 #header #logo img {
@@ -62,54 +86,6 @@ body {
     font-size: 1.5em;
     font-weight: normal;
     margin: 5px 0 0;
-}
-
-/* Content Section */
-#content {
-    width: 100%;
-    margin-top: 100px;
-    position: relative;
-    min-height: 50vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Met l'image en arrière-plan */
-#background_image {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 400px;
-    object-fit: cover;
-    z-index: -1;
-    filter: brightness(0.7);
-}
-
-/* Superposition bleue */
-#background_image::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 100, 255, 0.2); /* Bleu léger */
-}
-
-/* Footer Section */
-#footer {
-    background-color: var(--darkBlue);
-    color: var(--white);
-    font-size: 0.9em;
-    padding: 10px 0;
-    text-align: center;
-    bottom: 0;
-    width: 100%;
-    margin-top: auto; /* Pushes the footer to the bottom */
-    position: relative;
 }
 
 /* Menu */
@@ -180,6 +156,7 @@ body {
 .userSpace {
     display: flex;
     align-items: center;
+    justify-content: center;
     background-color: var(--white);
     color: var(--darkBlue);
     border: none;
@@ -190,8 +167,8 @@ body {
     flex-direction: column;
     text-decoration: none;
     font-size:small;
-    width: 62px;
-    min-height: 80px;
+    width: 50px;
+    height: 50px;
     text-align: center;
 }
 
@@ -205,7 +182,6 @@ body {
     width: 40px;
     border-radius: 50%;
     object-fit: cover;
-    margin-top: 2px;
 }
 .userSpace #disconected-user-image{
     height: 40px;
@@ -216,6 +192,34 @@ body {
     font-size: xx-large;
 }
 
+#names {
+    display: flex;
+    height: 50px;
+    background-color: var(--white);
+    border-radius: 10px;
+    flex-direction: column;
+    justify-content: center;
+    margin-right: 10px; /* Pushes it to the left of user space */
+    margin-left: auto; /* Adds spacing from the logo */
+    color: var(--darkBlue);
+    font-size: 0.9em;
+    text-align: left; /* Align text to the left */
+    padding: 0 10px;
+}
+
+#names p {
+    margin: 0;
+    line-height: 1.2;
+    font-weight: bold;
+}
+
+#names p:first-child {
+    font-size: 1.2em;
+}
+
+#names p:last-child {
+    font-size: 1em;
+}
 .userSpace p {
     margin: 0;
     line-height: 1.2;
@@ -280,6 +284,10 @@ body {
     opacity: 1;
 }
 
+#menu-toggle {
+    height: 50px;
+    width: 50px;
+}
 .menu-icon {
     padding-bottom: 30px;
     height: 25px;
@@ -287,6 +295,8 @@ body {
     flex-direction: column;
     gap: 3px;
     transform: translateY(-5px);
+    padding: 10px;
+    cursor: pointer;
 }
 
 .menu-icon .bar {
@@ -299,7 +309,7 @@ body {
 
 /* Cross State */
 .menu-icon.open .bar:nth-child(1) {
-    transform: rotate(45deg) translateY(-4px) translateX(10px); /* Move and rotate top bar */
+    transform: rotate(45deg) translateY(2px) translateX(13px); /* Move and rotate top bar */
 }
 
 .menu-icon.open .bar:nth-child(2) {
@@ -307,13 +317,14 @@ body {
 }
 
 .menu-icon.open .bar:nth-child(3) {
-    transform: rotate(-45deg) translateY(-11px) translateX(-0px); /* Move and rotate bottom bar */
+    transform: rotate(-45deg) translateY(-8px) translateX(-6px); /* Move and rotate bottom bar */
 }
 
-@media (max-width: 375px) {
+@media (max-width: 426px) {
     #title{
-        font-size:small;
+        display: none;
     }
+
 }
 
 #userMenu{
@@ -365,3 +376,57 @@ body {
     display: block;
     opacity: 1;
 }
+
+
+
+
+/* Content Section */
+#content {
+    width: 100%;
+    margin-top: 100px;
+    position: relative;
+    min-height: 50vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Met l'image en arrière-plan */
+#background_image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    z-index: -1;
+    filter: brightness(0.7);
+}
+
+/* Superposition bleue */
+#background_image::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 100, 255, 0.2); /* Bleu léger */
+}
+
+/* Footer Section */
+#footer {
+    background-color: var(--darkBlue);
+    color: var(--white);
+    font-size: 0.9em;
+    padding: 10px 0;
+    text-align: center;
+    bottom: 0;
+    width: 100%;
+    margin-top: auto; /* Pushes the footer to the bottom */
+    position: relative;
+}
+
+
+

@@ -7,3 +7,15 @@
     width: 100%;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
+
+/* Rocket Chat integration styling */
+.rocket-chat-target {
+    border-left: 3px solid #c33764;
+    padding-left: 15px;
+    margin-left: 10px;
+}
+
+#channel-selection, #user-selection {
+    display: none;
+    transition: all 0.3s ease;
+}

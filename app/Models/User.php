@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
+use App\Notifications\CustomResetPasswordNotification;
 
 class User extends Authenticatable
 {
@@ -36,7 +37,8 @@ class User extends Authenticatable
         'phone_number',
         'photo_release',
         'photo_consent',
-        'is_admin'
+        'photo', // Ensure this is included
+        'is_admin',
     ];
 
     /**
@@ -60,6 +62,11 @@ class User extends Authenticatable
         'photo_consent' => 'boolean',
         'is_admin' => 'boolean',
     ];
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new CustomResetPasswordNotification($token, $this->email));
+    }
 
     public function adhesions(): HasMany
     {
@@ -102,7 +109,8 @@ class User extends Authenticatable
                 'phone_number' => 'nullable|string|max:255',
                 'photo_release' => 'required|boolean',
                 'photo_consent' => 'required|boolean',
-                'is_admin' => 'required|boolean'
+                'is_admin' => 'required|boolean',
+                'photo' => 'nullable|string|max:255'
             ]);
 
             if ($validator->fails()) {

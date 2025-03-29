@@ -1,14 +1,11 @@
 /* Login Form */
-#content {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    border-radius: 20px;
-    margin: 20px auto;
-    min-width: 50%;
-    max-width: 400px;
-    padding: 30px;
+
+#login-title {
+    text-align: center;
+    padding: 10px;
+    margin-top: 100px;
+    color: var(--white);
+    font-size: xx-large;
 }
 
 form {

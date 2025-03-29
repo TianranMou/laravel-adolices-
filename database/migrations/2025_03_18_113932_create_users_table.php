@@ -27,6 +27,7 @@ return new class extends Migration
             $table->boolean('is_admin');
             $table->rememberToken();
             $table->timestamps();
+            $table->string('photo')->nullable();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

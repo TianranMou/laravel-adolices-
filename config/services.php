@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'rocketchat' => [
+        'url' => env('ROCKETCHAT_URL'),
+        'user_id' => env('ROCKETCHAT_USER_ID'),
+        'auth_token' => env('ROCKETCHAT_AUTH_TOKEN'),
+    ],
+
 ];

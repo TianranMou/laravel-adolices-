@@ -31,7 +31,7 @@
 
                 <div class="mb-3 form-floating form-field">
                     <input type="text" placeholder="RIB" name="RIB" id="RIB" class="form-control" value="{{ $prev_rib }}" required>
-                    <label for="RIB" >RIB</label>
+                    <label for="RIB" >IBAN</label>
                 </div>
 
                 <div class="mb-3 form-floating form-field">
@@ -54,7 +54,7 @@
                 </div>
                 <div class="mb-3 form-floating form-field">
                     <input type="text" class="form-control disabled-input" value="{{ $last_pending_subvention->RIB }}" readonly>
-                    <label>RIB</label>
+                    <label>IBAN</label>
                 </div>
                 <div class="mb-3 form-floating form-field">
                     <input type="text" class="form-control disabled-input" value="{{ $last_pending_subvention->montant }}" readonly>

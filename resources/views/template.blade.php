@@ -21,7 +21,7 @@
         "Gestion des shops avec tickets dématérialisés"=>"#",
         "Gestion des shops avec tickets papier"=>"#",
         "Demandes de subvention sportive"=>"#",
-        "Communiquer"=>"#"
+        "Communiquer"=>"/communiquer"
     ];
     $current_user = Auth::user();
         if(env("APP_DEBUG")){
@@ -51,7 +51,6 @@
             <div id="logo" class="dropdown">
                 <!--menu-->
                 <button id="menu-toggle" class="dropbtn">
-                    <img src="{{ asset('images/icon.png') }}" alt="Adolices Logo" loading="lazy">
                     <div class="menu-icon">
                         <i class="fa-solid fa-window-minimize bar"></i>
                         <i class="fa-solid fa-window-minimize bar"></i>
@@ -59,20 +58,29 @@
                     </div>
                 </button>
             </div>
+            <a href="{{ route("accueil") }}" id="logo">
+                <img src="{{ asset('images/icon.png') }}" alt="Adolices Logo" loading="lazy">
+            </a>
+            <div id="names">
+                @if(isset($current_user))
+                    <p>{{ $current_user->first_name }}</p>
+                    <p>{{ $current_user->last_name }}</p>
+                @else
+                    <p>Non Connecté</p>
+                @endif
+            </div>
             <bouton class="userSpace" id="userSpace">
                 @if(isset($current_user))
-                    @if (isset($userImage)&&file_exists($userImage))
-                        <img id="userImage" src="{{asset($userImage)}}" alt=""><!--TODO add user image-->
+                    @if (isset($current_user->photo) && file_exists(public_path($current_user->photo)))
+                        <img id="userImage" src="{{ asset($current_user->photo) }}" alt="Photo de Profil Utilisateur">
                     @else
-                        <img id="userImage" src="{{asset("images/UserPhotos/DefaultUser.png")}}" alt="">
+                        <img id="userImage" src="{{ asset('images/UserPhotos/DefaultUser.png') }}" alt="Photo de Profil par Défaut">
                     @endif
-                    <p><strong>{{$current_user->first_name}}</strong></p>
-                    <!--<p>{{$current_user->last_name}}</p>!-->
                 @else
                     <i class="fa-solid fa-user-slash" id="disconected-user-image"></i>
-                    <p>Se Connecter</p>
                 @endif
             </bouton>
+
             <div id="title">
                 <h1>Adolices</h1>
             </div>

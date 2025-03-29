@@ -22,9 +22,9 @@
                 <h3 class="text-center">Liste des Boutiques</h3>
             </div>
             <div class="col-md-6 text-end">
-                <button class="btn btn-primary" id="addBoutique">
+                <a class="btn btn-primary" id="addBoutique" href="ajouter-produit/">
                     <i class="fa fa-plus"></i> Ajouter une boutique
-                </button>
+                </a>
             </div>
         </div>
 

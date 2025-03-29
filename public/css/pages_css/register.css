@@ -1,4 +1,13 @@
 /* register Form */
+
+#register-title {
+    text-align: center;
+    padding: 10px;
+    margin-top: 100px;
+    color: var(--white);
+    font-size: xx-large;
+}
+
 #register-container {
     background-color: var(--white);
     display: flex;

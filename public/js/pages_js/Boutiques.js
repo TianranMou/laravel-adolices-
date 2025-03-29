@@ -23,4 +23,5 @@ $('#boutiquesTable').DataTable({
     columnDefs: [
         { className: "text-center align-middle", targets: "_all" }
     ]
+    /*vous avez perdu le jeu...*/
 });
