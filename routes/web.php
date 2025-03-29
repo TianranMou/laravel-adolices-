@@ -70,6 +70,10 @@ Route::get('/bureau', [BureauPageController::class, 'index'])->name('bureau');
 //Accueil
 Route::get('/', [AccueilPageController::class, 'index'])->name('accueil');
 
+//shop
+Route::get('/shop/{id}', [ShopController::class, 'show'])->name('shop.show');
+Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
+
 // Profile page
 Route::prefix('profile')->middleware('auth')->group(function(){
     Route::get('/', [ProfileController::class, 'index'])->name('profile');

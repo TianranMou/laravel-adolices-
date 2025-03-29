@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Shop;
 use Illuminate\Http\Request;
+use App\Models\Shop;
+use App\Models\Product; 
+use Illuminate\Support\Facades\Auth;
 
 class ShopController extends Controller
 {
@@ -26,12 +28,24 @@ class ShopController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show($id)
-    {
-        $shop = Shop::findOrFail($id);
-        return response()->json($shop);
-        //return view('shop', ['shop' => $shop]);
+{
+    // 获取商店信息
+    $shop = Shop::findOrFail($id);
+    
+    // 获取该商店的所有商品
+    $products = Product::where('shop_id', $id)->get();
+    
+    // 获取当前用户信息和会员状态
+    $current_user = Auth::user();
+    if(env("APP_DEBUG")){
+        $adhesion_valid = true;
+    }else{
+        $adhesion_valid = $current_user ? $current_user->hasUpToDateAdhesion() : false;
     }
-
+    
+    // 返回视图，传递数据
+    return view('shop.show', compact('shop', 'products', 'current_user', 'adhesion_valid'));
+}
     /**
      * Store a newly created resource in storage.
      *
