@@ -87,11 +87,14 @@
                             @endif
                         </td>
                         <td>
-                            {{($boutique->is_active&&($boutique->end_date>=date('Y-m-d')||$boutique->end_date==null))?'Oui':'Non'}}</td>
+                            {{($boutique->is_active&&($boutique->end_date>=date('Y-m-d')||$boutique->end_date==null))?'Oui':'Non'}}
+                        </td>
                         <td>
-                            <a href="{{ "ajouter-produit/".$boutique->id }}" class="btn btn-primary editBoutique" data-id="{{ $boutique->id }}">
-                                <i class="fa fa-edit"></i>
-                            </a>
+                            @if($BoutiquesGeredByUser->contains($boutique->shop_id)||env('APP_DEBUG'))
+                                <a href="{{ "ajouter-produit/".$boutique->shop_id }}" class="btn btn-primary editBoutique" data-id="{{ $boutique->shop_id }}">
+                                    <i class="fa fa-edit"></i>
+                                </a>
+                            @endif
                         </td>
                     </tr>
                 @endforeach

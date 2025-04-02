@@ -21,7 +21,7 @@
         @endif
         <br>
         <section class="shops">
-            @if(!empty($shops)&&$current_user)
+            @if(!empty($shops))
                 <div id="activites">
                     <h3 id="shops_title">Événements/Sorties</h3>
                     <div class="shops-cards">
@@ -34,7 +34,7 @@
                                 @endif
                                 <h4 class="boutique-title">{{ $shop->shop_name }}</h4>
                                 <p class="boutique-description">{{ $shop->short_description }}</p>
-                                @if (true)
+                                @if ($current_user)
                                     <a href="{{ "/shop/".$shop->shop_id }}" class="boutique-link">En savoir plus</a>
                                 @endif
                             </div>
@@ -43,7 +43,7 @@
                 </div>
             @endif
 
-            @if(!empty($billeteries)&&$current_user)
+            @if(!empty($billeteries))
                 <br>
                 @if(!empty($shops))
                     <div id="billeteries">
@@ -61,7 +61,7 @@
                                 @endif
                                 <h4 class="boutique-title">{{ $shop->shop_name }}</h4>
                                 <p class="boutique-description">{{ $shop->short_description }}</p>
-                                @if (true)
+                                @if ($current_user)
                                     <a href="{{ "/shop/".$shop->shop_id }}" class="boutique-link">En savoir plus</a>
                                 @endif
                             </div>

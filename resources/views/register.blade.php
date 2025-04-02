@@ -1,7 +1,7 @@
 @extends('template')
 
 @section('title')
-    Créer Un Compte
+    Créer un compte
 @endsection
 
 @section('head')
@@ -9,7 +9,7 @@
 @endsection
 
 @section('content')
-    <h3 id="register-title">Créer Un Compte</h3>
+    <h3 id="register-title">Créer un compte</h3>
     <div id="register-container">
         @if ($errors->any())
             <div class="alert alert-danger">
@@ -69,6 +69,18 @@
                 <label for="group_id">Service</label>
             </div>
 
+            <div class="mb-3">
+                <label for="site_ids" class="form-label">Vos Sites de Référence</label>
+                <select id="site_ids" name="site_ids[]" class="form-select" multiple>
+                    @foreach ($sites as $site)
+                        <option value="{{ $site->site_id }}" {{ in_array($site->site_id, old('site_ids', [])) ? 'selected' : '' }}>
+                            {{ $site->label_site }}
+                        </option>
+                    @endforeach
+                </select>
+                <small class="form-text text-muted">Maintenez la touche Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs sites.</small>
+            </div>
+
             <div class="mb-3 form-floating">
                 <input type="password" id="password" name="password" class="form-control" autocomplete="current-password" required placeholder="Password">
                 <label for="password">Mot de passe</label>
@@ -80,7 +92,11 @@
             </div>
 
             <div class="mb-3">
-                <button type="submit" class="btn btn-primary w-100">Créer un Compte</button>
+                <button type="submit" class="btn btn-primary w-100">Créer un compte</button>
+            </div>
+
+            <div class="mb-3">
+                <p class="text-center">Déjà un compte ? <a href="{{ route('login') }}">Connectez-vous ici</a></p>
             </div>
         </form>
     </div>

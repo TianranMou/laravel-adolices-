@@ -1,70 +1,296 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Adolices - School Management System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## About the Project
+Adolices is a Laravel-based school management system that integrates with Rocket.Chat and HelloAsso for communication and payment processing. The system is built with Laravel 12 and uses modern web technologies including Tailwind CSS for styling.
 
-## About Laravel
+## System Requirements
+- PHP 8.2 or higher
+- Composer
+- Node.js 18+ and npm
+- SQLite (default) or MySQL/PostgreSQL
+- Redis (optional, for caching)
+- Git
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Project Dependencies
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Core Dependencies
+- **Laravel Framework 12**: Core PHP framework
+- **League HTML to Markdown**: Converts HTML content to Markdown format
+- **Smalot PDF Parser**: For PDF file processing and parsing
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Frontend Dependencies
+- **Vite**: Build tool and development server
+- **Tailwind CSS**: Utility-first CSS framework
+- **Axios**: HTTP client for API requests
+- **PostCSS**: CSS processing tool
+- **Autoprefixer**: PostCSS plugin for vendor prefixes
 
-## Learning Laravel
+### Development Dependencies
+- **Laravel Debugbar**: Debug toolbar for development
+- **Laravel Pint**: Code style fixer
+- **Laravel Sail**: Docker development environment
+- **Laravel Pail**: Real-time log viewer
+- **PHPUnit**: Testing framework
+- **Faker**: Data generation for testing
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### External Services
+- **Rocket.Chat**: For communication features
+- **HelloAsso**: For payment processing and membership management
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Local Development Setup
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+1. **Clone the Repository**
+```bash
+git clone [repository-url]
+cd adolices
+```
 
-## Laravel Sponsors
+2. **Install Dependencies**
+```bash
+composer install
+npm install
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+3. **Environment Configuration**
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-### Premium Partners
+4. **Configure Environment Variables**
+Edit the `.env` file with your local settings. Key configurations include:
+- Database settings
+- Rocket.Chat integration
+- HelloAsso API credentials
+- Mail settings
+- Application URL
+- `APP_DEV`: Set to `false` in production to prevent test data from being seeded into the database
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+5. **Database Setup**
+```bash
+php artisan migrate
+php artisan db:seed
+```
 
-## Contributing
+6. **Start Development Servers**
+```bash
+# Using the development script (recommended)
+composer dev
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# Or manually:
+php artisan serve
+npm run dev
+```
 
-## Code of Conduct
+## Development Guidelines
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Available Development Tools
+- **Laravel Debugbar**: Available in development for debugging
+- **Laravel Pint**: Code style fixer (run with `./vendor/bin/pint`)
+- **Laravel Sail**: Docker development environment (run with `./vendor/bin/sail up`)
+- **Laravel Pail**: Real-time log viewer (included in `composer dev`)
 
-## Security Vulnerabilities
+### Development Workflow
+1. **Code Style**
+   - Follow PSR-12 standards
+   - Use Laravel Pint for code formatting
+   - Run `./vendor/bin/pint` before committing
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+2. **Testing**
+   - Write tests for new features
+   - Run tests with `php artisan test`
+   - Maintain test coverage for critical features
+
+3. **Database Changes**
+   - Create migrations for all database changes
+   - Include rollback methods in migrations
+   - Test migrations with `php artisan migrate:fresh`
+
+4. **Git Workflow**
+   - Create feature branches from `main`
+   - Use meaningful commit messages
+   - Submit pull requests for review
+
+### Common Development Commands
+```bash
+# Start development environment
+composer dev
+
+# Run tests
+php artisan test
+
+# Format code
+./vendor/bin/pint
+
+# Clear caches
+php artisan optimize:clear
+
+# Generate IDE helper files
+php artisan ide-helper:generate
+php artisan ide-helper:meta
+```
+
+## Production Deployment
+
+### Server Requirements
+- PHP 8.2 or higher
+- Composer
+- Node.js and npm
+- Web server (Apache/Nginx)
+- SSL certificate
+- Database server (MySQL/PostgreSQL recommended for production)
+- Redis (recommended for production)
+
+### Deployment Steps
+
+1. **Server Setup**
+   - Install required software packages
+   - Configure web server (Apache/Nginx)
+   - Set up SSL certificate
+   - Configure PHP-FPM
+   - Set up database server
+
+2. **Application Deployment**
+```bash
+# Clone repository
+git clone [repository-url]
+cd adolices
+
+# Install dependencies
+composer install --optimize-autoloader --no-dev
+npm install
+npm run build
+
+# Environment setup
+cp .env.example .env
+php artisan key:generate
+
+# Configure production environment
+# Edit .env file with production settings
+```
+
+3. **Database Setup**
+```bash
+php artisan migrate --force
+php artisan db:seed --force
+```
+
+4. **Optimize Application**
+```bash
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+php artisan storage:link
+```
+
+5. **Configure Queue Worker**
+```bash
+# Set up supervisor for queue worker
+php artisan queue:work --queue=high,default,low --tries=3
+```
+
+6. **Configure Cron Jobs**
+```bash
+# Add to crontab
+* * * * * cd /path-to-project && php artisan schedule:run >> /dev/null 2>&1
+```
+
+### Production Environment Variables
+Key production environment variables to configure:
+- `APP_ENV=production`
+- `APP_DEBUG=false`
+- `APP_URL=https://your-domain.com`
+- Database credentials
+- Mail settings
+- Rocket.Chat credentials
+- HelloAsso API credentials
+- Queue and cache settings
+
+### Detailed Environment Variables Guide
+Here's a detailed explanation of important environment variables:
+
+#### Application Settings
+- `APP_DEBUG`: Set to false when deploying
+- `APP_LOCALE`: Default application language (default: en)
+- `APP_FALLBACK_LOCALE`: Fallback language if translation is missing
+- `APP_FAKER_LOCALE`: Locale for generating fake data
+
+#### School Settings
+- `FIRST_SCHOOL_YEAR`: The first year adhérents records (default: 2022)
+- `ADHESION_MONTH_DAY`: Date format for membership renewal (default: 07-31)
+
+#### External Services
+- `ROCKET_CHAT_URL`: Your Rocket.Chat server URL
+- `ROCKET_CHAT_USER_ID`: Bot user ID for Rocket.Chat integration
+- `ROCKET_CHAT_AUTH_TOKEN`: Authentication token for Rocket.Chat
+- `HELLOASSO_API_KEY`: API key for HelloAsso integration
+- `HELLOASSO_API_SECRET`: API secret for HelloAsso integration
+- `HELLOASSO_ORGANIZATION_SLUG`: Your HelloAsso organization identifier
+
+#### Database and Cache
+- `DB_CONNECTION`: Database type (sqlite, mysql, pgsql)
+- `QUEUE_CONNECTION`: Queue driver (database recommended for production)
+- `CACHE_STORE`: Cache driver (database recommended for production)
+
+## Maintenance
+
+### Regular Tasks
+1. **Database Backups**
+   - Set up automated database backups
+   - Regular backup verification
+
+2. **Log Management**
+   - Configure log rotation
+   - Monitor error logs
+
+3. **Updates**
+   - Regular composer updates
+   - Regular npm updates
+   - Security patches
+
+### Monitoring
+- Set up server monitoring
+- Configure error reporting
+- Monitor queue workers
+- Set up uptime monitoring
+
+## Security Considerations
+
+1. **File Permissions**
+   - Set proper permissions for storage and bootstrap/cache directories
+   - Secure .env file
+   - Configure proper web server permissions
+
+2. **SSL/TLS**
+   - Ensure SSL certificate is valid
+   - Configure secure headers
+   - Enable HTTPS-only cookies
+
+3. **API Security**
+   - Secure API endpoints
+   - Implement rate limiting
+   - Use secure tokens for external services
+
+## Troubleshooting
+
+### Common Issues
+1. **Queue Worker Issues**
+   - Check supervisor configuration
+   - Verify queue connection settings
+   - Monitor failed jobs
+
+2. **Cache Issues**
+   - Clear application cache
+   - Verify Redis configuration
+   - Check file permissions
+
+3. **Database Issues**
+   - Verify database connection
+   - Check migration status
+   - Monitor database performance
+
+## Support
+For support and issues, please contact the development team or create an issue in the repository.
 
 ## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-
-# Installation
-dupliquer le .env.exemple, le renommer en .env
->composer run-script post-create-project-cmd
+This project is licensed under the MIT License - see the LICENSE file for details.

@@ -10,6 +10,8 @@ class BoutiquesPageController extends Controller
     public function index()
     {
         $boutiques = Shop::all();
-        return view('boutiques', compact('boutiques'));
+        $currrentUser = auth()->user();
+        $BoutiquesGeredByUser = $currrentUser->getBoutiquesGerees();
+        return view('Boutiques', compact('boutiques','BoutiquesGeredByUser'));
     }
 }

@@ -6,6 +6,7 @@
     margin-top: 100px;
     color: var(--white);
     font-size: xx-large;
+    font-weight: bold;
 }
 
 #register-container {
@@ -42,7 +43,10 @@ button[type="submit"] {
     font-size: 1.1em;
     cursor: pointer;
     transition: background-color 0.2s ease;
-    margin-top: 15px;
+    margin: 20px auto; /* Centre le bouton horizontalement */
+    display: block; /* Nécessaire pour que margin: auto fonctionne */
+    width: 50%; /* Optionnel : ajuste la largeur du bouton */
+    text-align: center;
 }
 
 

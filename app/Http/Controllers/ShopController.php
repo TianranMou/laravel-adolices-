@@ -29,13 +29,13 @@ class ShopController extends Controller
      */
     public function show($id)
 {
-    // 获取商店信息
+    // Get shop information
     $shop = Shop::findOrFail($id);
     
-    // 获取该商店的所有商品
+    // Get all products of this shop
     $products = Product::where('shop_id', $id)->get();
     
-    // 获取当前用户信息和会员状态
+    // Get current user information and membership status状态
     $current_user = Auth::user();
     if(env("APP_DEBUG")){
         $adhesion_valid = true;
@@ -43,7 +43,7 @@ class ShopController extends Controller
         $adhesion_valid = $current_user ? $current_user->hasUpToDateAdhesion() : false;
     }
     
-    // 返回视图，传递数据
+    // Return view, pass data
     return view('shop.show', compact('shop', 'products', 'current_user', 'adhesion_valid'));
 }
     /**

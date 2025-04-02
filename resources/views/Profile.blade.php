@@ -10,7 +10,7 @@
 @endsection
 
 @section('content')
-    <h1 id="profile-title">Mon Profil</h1>
+    <h1 id="profile-title">Mon profil</h1>
     <div id="profile-content">
         <form id="profile-form" method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data">
             @csrf
@@ -71,22 +71,36 @@
 
             <!-- Photo de profil -->
             <div class="mb-3">
-                <label for="photo" class="form-label">Photo de Profil</label>
+                <label for="photo" class="form-label">Photo de profil</label>
                 <div class="profile-photo-container mb-2">
-                    <img src="{{ $current_user->photo ? asset($current_user->photo) : asset('images/default-profile.png') }}" alt="Photo de Profil" id="profile_photo_preview" class="img-thumbnail">
+                    <img src="{{ $current_user->photo ? asset($current_user->photo) : asset('images/default-profile.png') }}" alt="Photo de profil" id="profile_photo_preview" class="img-thumbnail">
                 </div>
                 <input type="file" id="photo" name="photo" class="form-control">
+            </div>
+
+            <!-- Sites de référence -->
+            <div class="mb-3">
+                <label for="site_ids" class="form-label">Sites de Référence</label>
+                <select id="site_ids" name="site_ids[]" class="form-select" multiple>
+                    @foreach ($sites as $site)
+                        <option value="{{ $site->site_id }}"
+                            {{ in_array($site->site_id, $current_user->sites->pluck('site_id')->toArray()) ? 'selected' : '' }}>
+                            {{ $site->label_site }}
+                        </option>
+                    @endforeach
+                </select>
+                <small class="form-text text-muted">Maintenez la touche Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs sites.</small>
             </div>
 
             <!-- Autorisations -->
             <div class="mb-3">
                 <label for="photo_release" class="form-label">Autorisation de diffusion des photos</label>
                 <div class="form-check form-switch">
-                    <input type="checkbox" class="form-check-input" id="photo_release" name="photo_release" {{ $current_user->photo_release ? 'checked' : '' }}>
+                    <input type="checkbox" class="form-check-input" id="photo_release" name="photo_release" value="1" {{ $current_user->photo_release ? 'checked' : '' }}>
                     <label class="form-check-label" for="photo_release">Autoriser la diffusion de mes photos</label>
                 </div>
                 <div class="form-check form-switch">
-                    <input type="checkbox" class="form-check-input" id="photo_consent" name="photo_consent" {{ $current_user->photo_consent ? 'checked' : '' }}>
+                    <input type="checkbox" class="form-check-input" id="photo_consent" name="photo_consent" value="1" {{ $current_user->photo_consent ? 'checked' : '' }}>
                     <label class="form-check-label" for="photo_consent">Consentement à la prise de photos</label>
                 </div>
             </div>

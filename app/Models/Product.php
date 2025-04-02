@@ -47,6 +47,14 @@ class Product extends Model
         return $this->hasMany(Ticket::class, 'product_id', 'product_id');
     }
 
+    public static function findOrCreateByName(string $name, array $attributes = []): self
+    {
+        return static::firstOrCreate(
+            ['product_name' => $name],
+            $attributes
+        );
+    }
+
     protected static function boot()
     {
         parent::boot();
@@ -67,4 +75,10 @@ class Product extends Model
             }
         });
     }
+
+    public function getNbTicketsAttribute()
+    {
+            return Ticket::where('product_id', $this->product_id)->count();
+    }
+
 }

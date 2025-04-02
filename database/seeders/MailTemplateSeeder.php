@@ -15,7 +15,6 @@ class MailTemplateSeeder extends Seeder
     {
         DB::table('template_mail')->insert([
             [
-                'shop_id' => 1,
                 'subject' => 'Subject test',
                 'content' => 'CONTENT TEST',
             ]

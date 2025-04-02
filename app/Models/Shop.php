@@ -56,23 +56,32 @@ class Shop extends Model
         return $this->belongsToMany(User::class, 'administrator', 'shop_id', 'user_id')
                     ->withTimestamps();
     }
+
+    public static function findOrCreateByName(string $name, array $attributes = []): self
+    {
+        return static::firstOrCreate(
+            ['shop_name' => $name],
+            $attributes
+        );
+    }
+
     protected static function boot()
     {
         parent::boot();
 
         static::saving(function ($model) {
             $validator = Validator::make($model->getAttributes(), [
-                'shop_name' => 'required|string|max:100',
+                'shop_name' => 'required|string|max:250',
                 'short_description' => 'required|string',
-                'long_description' => 'nullable|string',
-                'min_limit' => 'nullable|integer',
-                'end_date' => 'nullable|date',
-                'is_active' => 'boolean',
-                'thumbnail' => 'required|string|max:250',
-                'doc_link' => 'required|string|max:250',
-                'bc_link' => 'required|string|max:250',
-                'ha_link' => 'required|string|max:250',
-                'photo_link' => 'required|string|max:250',
+                'long_description' => 'required|string',
+                'min_limit' => 'required|integer|min:0',
+                'end_date' => 'required|date',
+                'is_active' => 'required|boolean',
+                'thumbnail' => 'nullable|url',
+                'doc_link' => 'nullable|url',
+                'bc_link' => 'nullable|url',
+                'ha_link' => 'nullable|url',
+                'photo_link' => 'nullable|url'
             ]);
 
             if ($validator->fails()) {

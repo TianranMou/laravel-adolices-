@@ -14,7 +14,7 @@ class Subvention extends Model
     use HasFactory;
 
     protected $primaryKey = 'subvention_id';
-    protected $table='subvention';
+    protected $table = 'subvention';
     public $timestamps = false;
     protected $connection = 'mysql';
 
@@ -82,5 +82,10 @@ class Subvention extends Model
             ->orderBy('payment_subvention', 'desc')
             ->orderBy('subvention_id', 'desc')
             ->get();
+    }
+    
+    public function scopePending($query)
+    {
+        return $query->where('state_id', 1);
     }
 }

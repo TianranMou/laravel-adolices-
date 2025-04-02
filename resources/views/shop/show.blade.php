@@ -22,23 +22,23 @@
                 <h1>{{ $shop->shop_name }}</h1>
                 <p class="shop-description">{{ $shop->short_description }}</p>
                 <p class="shop-long-description">{{ $shop->long_description }}</p>
-                
+
                 @if($shop->end_date)
                     <p class="shop-date">Disponible jusqu'au {{ \Carbon\Carbon::parse($shop->end_date)->format('d/m/Y') }}</p>
                 @endif
-                
+
                 @if($shop->doc_link)
                     <a href="{{ asset($shop->doc_link) }}" target="_blank" class="btn btn-secondary">Voir le document</a>
                 @endif
-                
+
                 @if($shop->ha_link)
                     <a href="{{ $shop->ha_link }}" target="_blank" class="btn btn-primary">Lien HelloAsso</a>
                 @endif
             </div>
         </div>
-        
+
         <h2 class="products-title">Produits disponibles</h2>
-        
+
         @if($products->isEmpty())
             <div class="no-products">
                 <p>Aucun produit n'est disponible dans cette boutique pour le moment.</p>
@@ -58,23 +58,11 @@
                                 <span class="value">{{ $product->subsidized_price }} €</span>
                             </div>
                         </div>
-                        
-                        @if($adhesion_valid)
-                            <form action="{{ route('cart.add', $product->product_id) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="btn btn-primary add-to-cart">Ajouter au panier</button>
-                            </form>
-                        @else
-                            <div class="adhesion-required">
-                                <p>Adhésion requise pour acheter</p>
-                                <a href="{{ route('adhesion') }}" class="btn btn-secondary">Devenir adhérent</a>
-                            </div>
-                        @endif
                     </div>
                 @endforeach
             </div>
         @endif
-        
+
         <div class="back-link">
             <a href="{{ route('accueil') }}" class="btn btn-outline-primary">Retour à l'accueil</a>
         </div>

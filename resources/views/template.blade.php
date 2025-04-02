@@ -4,24 +4,23 @@
         $adhesion_valid=false;
     }
     $disconectedPages=[
-        "Accueil"=>"/",
-        "Mon Adhésion"=>"/adhesion",
-        "Règlement intérieur"=>"/reglement-interieur",
-        "Bureau"=>"/bureau",
+        "Accueil"=>route('accueil'),
+        "Règlement intérieur"=>route('reglement_interieur'),
+        "Bureau"=>route('bureau'),
+    ];
+    $nonAdherentsPages=[
+        "Mon adhésion"=> route('adhesion'),
     ];
     $userPages=[
-        "Achats"=>"#",
-        "Demande de Subvention Sportive"=>"/subvention_inquiry",
-        "Contact"=>"#",
+        "Mes achats"=>route('achats'),
+        "Demande de subvention sportive"=>route('demande-subvention.index'),
+        "Nous contacter"=>"/contact",
     ];
     $adminPages=[
-        "Adhérents"=>"/adherents",
-        "Configuration shops annuelles"=>"#",
-        "Configuration shops ponctuelles"=>"#",
-        "Gestion des shops avec tickets dématérialisés"=>"#",
-        "Gestion des shops avec tickets papier"=>"#",
-        "Demandes de subvention sportive"=>"#",
-        "Communiquer"=>"/communiquer"
+        "Adhérents"=>route('adherents'),
+        "Configuration des boutiques"=>route('boutiques'),
+        "Demandes de subvention sportive"=>route('subventions.index'),
+        "Communication"=>route('communiquer'),
     ];
     $current_user = Auth::user();
         if(env("APP_DEBUG")){
@@ -61,14 +60,14 @@
             <a href="{{ route("accueil") }}" id="logo">
                 <img src="{{ asset('images/icon.png') }}" alt="Adolices Logo" loading="lazy">
             </a>
-            <div id="names">
+            <a id="names" href="{{ isset($current_user) ? route('accueil') : route('login') }}">
                 @if(isset($current_user))
                     <p>{{ $current_user->first_name }}</p>
                     <p>{{ $current_user->last_name }}</p>
                 @else
-                    <p>Non Connecté</p>
+                    <p id="connectionButton">Se connecter</p>
                 @endif
-            </div>
+            </a>
             <bouton class="userSpace" id="userSpace">
                 @if(isset($current_user))
                     @if (isset($current_user->photo) && file_exists(public_path($current_user->photo)))
@@ -87,31 +86,45 @@
         </section>
         <div id="userMenu">
             @if(isset($current_user))
-                <a href="{{ route('profile') }}">Mon Profil</a>
-                <a href="{{ route('logout') }}">Se Déconnecter</a>
+                <a href="{{ route('profile') }}">Mon profil</a>
+                <a href="{{ route('logout') }}">Se déconnecter</a>
             @else
-                <a href="{{ route('login') }}">Se Connecter</a>
+                <a href="{{ route('login') }}">Se connecter</a>
             @endif
         </div>
         <div id="menu-container">
             @php
                 $currentTitle = trim(View::yieldContent('title') ?? '');
             @endphp
-            @foreach ($disconectedPages as $page_title => $link )
-                <a href={{ $link }} {{ $currentTitle == $page_title ? ' id=selectedPage' : '' }}>{{ $page_title }}</a>
-            @endforeach
-            @if($adhesion_valid)
-                @foreach ($userPages as $page_title => $link )
+            @if (isset($current_user))
+                @foreach ($disconectedPages as $page_title => $link )
                     <a href={{ $link }} {{ $currentTitle == $page_title ? ' id=selectedPage' : '' }}>{{ $page_title }}</a>
                 @endforeach
-                @if ($current_user->is_admin??false)
-                    <div id="adminSeparator"></div>
-                    <p id="adminSeparatorText">Pages d'administration</p>
-                    @foreach ($adminPages as $page_title => $link )
-                        <a href={{ $link }} class="admin_page" {{ $currentTitle == $page_title ? ' id=selectedPage' : '' }}>{{ $page_title }}</a>
+                @foreach ($nonAdherentsPages as $page_title => $link )
+                    <a href={{ $link }} {{ $currentTitle == $page_title ? ' id=selectedPage' : '' }}>{{ $page_title }}</a>
+                @endforeach
+                @if($adhesion_valid)
+                    @foreach ($userPages as $page_title => $link )
+                        <a href={{ $link }} {{ $currentTitle == $page_title ? ' id=selectedPage' : '' }}>{{ $page_title }}</a>
                     @endforeach
+                    @if ($current_user->is_admin??false)
+                        <div id="Separator"></div>
+                        <p id="SeparatorText">Pages d'administration</p>
+                        @foreach ($adminPages as $page_title => $link )
+                            <a href={{ $link }} class="admin_page" {{ $currentTitle == $page_title ? ' id=selectedPage' : '' }}>{{ $page_title }}</a>
+                        @endforeach
+                    @endif
                 @endif
+            @else
+                @foreach ($disconectedPages as $page_title => $link )
+                    <a href={{ $link }} {{ $currentTitle == $page_title ? ' id=selectedPage' : '' }}>{{ $page_title }}</a>
+                @endforeach
+                <div id="Separator"></div>
+                <a href="{{ route('login') }}">
+                    <p id="disconected">Se connecter</p>
+                </a>
             @endif
+
         </div>
         <div id="menu-overlay"></div>
         <div id="user-overlay"></div>

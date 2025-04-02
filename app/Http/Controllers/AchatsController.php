@@ -15,14 +15,10 @@ class AchatsController extends Controller
     public function index()
     {
         $user = auth()->user();
-        //$adhesion_valid = $user->hasUpToDateAdhesion();
-        //debug
-        $adhesion_valid = true;
-        
-        $tickets = Ticket::getTicketByUserId($user->user_id)
-            ->load(['produit', 'site'])
-            ->sortByDesc('purchase_date');
+        $adhesion_valid = true; //debug
 
-        return view('achats', compact('tickets','adhesion_valid'));
+        $aggregatedTickets = Ticket::getAggregatedTicketsForUser($user->user_id);
+
+        return view('achats', compact('aggregatedTickets', 'adhesion_valid'));
     }
 }

@@ -30,7 +30,7 @@ class MailTemplate extends Model
 
         static::saving(function ($model) {
             $validator = Validator::make($model->getAttributes(), [
-                'shop_id' => 'exists:shop,shop_id',
+                'shop_id' => 'nullable|exists:shop,shop_id',
                 'subject' => 'required|string|max:100',
                 'content' => 'required|string'
             ]);

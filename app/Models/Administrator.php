@@ -47,4 +47,38 @@ class Administrator extends Model
             }
         });
     }
+
+    /**
+     * Get administrators grouped by shop
+     *
+     * @return array Array of shops with their administrators
+     */
+    public static function getAdminByShop()
+    {
+        $admins = self::with(['shop', 'user'])->get();
+
+        $adminsByShop = [];
+
+        foreach ($admins as $admin) {
+            $shopId = $admin->shop_id;
+
+            if (!isset($adminsByShop[$shopId])) {
+                $adminsByShop[$shopId] = [
+                    'shop' => [
+                        'shop_id' => $admin->shop->shop_id,
+                        'shop_name' => $admin->shop->shop_name
+                    ],
+                    'administrators' => []
+                ];
+            }
+
+            $adminsByShop[$shopId]['administrators'][] = [
+                'last_name' => $admin->user->last_name,
+                'first_name' => $admin->user->first_name,
+                'email' => $admin->user->email
+            ];
+        }
+
+        return array_values($adminsByShop);
+    }
 }

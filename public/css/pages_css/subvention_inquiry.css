@@ -16,9 +16,12 @@ label {
 }
 
 h3 {
-    margin-bottom: 10rem;
-    margin-top: 5rem;
-    color: white;
+    text-align: center;
+    font-size: 2.5em;
+    color: var(--white);
+    margin-top: 100px;
+    margin-bottom: 200px;
+    font-weight: bold;
 }
 
 /* grey out the fields and change the cursor for pending subvention*/

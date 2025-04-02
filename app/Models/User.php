@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
 use App\Notifications\CustomResetPasswordNotification;
@@ -121,22 +122,47 @@ class User extends Authenticatable
 
     public function hasUpToDateAdhesion(): bool
     {
-        $adhesionMonthDay = env('ADHESION_MONTH_DAY');
+        // Default to September 1st if not set
+        $adhesionMonthDay = env('ADHESION_MONTH_DAY', '09-01');
 
-        [$month, $day] = explode('-', $adhesionMonthDay);
+        try {
+            [$month, $day] = explode('-', $adhesionMonthDay);
+            $month = (int)$month;
+            $day = (int)$day;
 
-        $startDate = Carbon::createFromDate(now()->year, $month, $day);
-        $endDate = Carbon::now();
-
-        foreach ($this->adhesions as $adhesion) {
-            $adhesionDate = Carbon::parse($adhesion->date_adhesion);
-
-            if ($adhesionDate->between($startDate, $endDate, true)) {
-                return true;
+            // Validate month and day
+            if ($month < 1 || $month > 12 || $day < 1 || $day > 31) {
+                // Default to September 1st if invalid
+                $month = 9;
+                $day = 1;
             }
-        }
 
-        return false;
+            $startDate = Carbon::createFromDate(now()->year, $month, $day);
+            $endDate = Carbon::now();
+
+            foreach ($this->adhesions as $adhesion) {
+                $adhesionDate = Carbon::parse($adhesion->date_adhesion);
+
+                if ($adhesionDate->between($startDate, $endDate, true)) {
+                    return true;
+                }
+            }
+
+            return false;
+        } catch (\Exception $e) {
+            // Log the error and return false
+            \Log::error("Error in hasUpToDateAdhesion: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function getBoutiquesGerees()
+    {
+
+        $userId = $this->user_id;
+        return Shop::whereHas('administrators', function ($query) use ($userId) {
+            $query->where('administrator.user_id', $userId);
+        })->get();
     }
 
     public static function getUsersWithAdhesionsByDateRange($startDate, $endDate)

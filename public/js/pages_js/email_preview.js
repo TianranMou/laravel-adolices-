@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     modifyEmailBtn.addEventListener('click', function(e) {
         e.preventDefault();
-        window.location.href = '/communiquer';
+        // Rediriger vers la page de communication avec un paramètre
+        // indiquant qu'on revient de la prévisualisation
+        window.location.href = '/communiquer?from_preview=1';
     });
 });

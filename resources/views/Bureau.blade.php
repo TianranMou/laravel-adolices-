@@ -10,7 +10,7 @@
 
 @section('content')
     <div class="bureau-container">
-        <h1>Les Membres du Bureau</h1>
+        <h1>Membres du bureau</h1>
         <div id="bureau-list">
             @foreach ($bureau_data as $member)
                 <div class="bureau-member">

@@ -8,7 +8,7 @@
     display: flex;
     gap: 30px;
     margin-bottom: 40px;
-    background-color: #f8f9fa;
+    background-color: var(--white);
     border-radius: 8px;
     padding: 20px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
@@ -29,7 +29,7 @@
 }
 
 .shop-info h1 {
-    color: #1E3A8A;
+    color: var(--lightBlue);
     margin-bottom: 15px;
 }
 
@@ -37,24 +37,24 @@
     font-size: 1.1rem;
     font-weight: 500;
     margin-bottom: 10px;
-    color: #333;
+    color: var(--gray);
 }
 
 .shop-long-description {
     margin-bottom: 20px;
-    color: #555;
+    color: var(--gray);
 }
 
 .shop-date {
     font-style: italic;
-    color: #F97316;
+    color: var(--lightBlue);
     margin-bottom: 15px;
 }
 
 .products-title {
     text-align: center;
     margin: 30px 0;
-    color: #1E3A8A;
+    color: var(--white);
     position: relative;
 }
 
@@ -63,7 +63,7 @@
     display: block;
     width: 50px;
     height: 3px;
-    background-color: #F97316;
+    background-color: var(--lightYellow);
     margin: 10px auto;
 }
 
@@ -75,7 +75,7 @@
 }
 
 .product-card {
-    background-color: white;
+    background-color: var(--white);
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 3px 10px rgba(0,0,0,0.1);
@@ -88,10 +88,10 @@
 }
 
 .product-name {
-    color: #1E3A8A;
+    color: var(--darkYellow);
     font-size: 1.3rem;
     margin-bottom: 15px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--white);
     padding-bottom: 10px;
 }
 
@@ -106,17 +106,17 @@
 }
 
 .price .label, .subsidized-price .label {
-    color: #555;
+    color: var(--gray);
 }
 
 .price .value {
     text-decoration: line-through;
-    color: #999;
+    color: var(--red);
 }
 
 .subsidized-price .value {
     font-weight: bold;
-    color: #F97316;
+    color: var(--lightYellow);
     font-size: 1.1rem;
 }
 
@@ -128,16 +128,16 @@
 .adhesion-required {
     text-align: center;
     padding: 10px;
-    background-color: #f8f9fa;
+    background-color: var(--lightGray);
     border-radius: 5px;
 }
 
 .no-products {
     text-align: center;
     padding: 40px;
-    background-color: #f8f9fa;
+    background-color: var(--lightGray);
     border-radius: 8px;
-    color: #555;
+    color: var(--gray);
 }
 
 .back-link {
@@ -149,7 +149,7 @@
     .shop-header {
         flex-direction: column;
     }
-    
+
     .shop-image {
         flex: 0 0 auto;
         margin-bottom: 20px;

@@ -23,17 +23,31 @@ class CommuniquerController extends Controller
      */
     public function index(Request $request)
     {
-        $templates = MailTemplate::all();
-        $oldValues = $request->session()->get('emailData', []);
-
         try {
-            $channels = $this->rocketChatService->getChannels();
-        } catch (\Exception $e) {
-            Log::error('Failed to fetch RocketChat channels', ['error' => $e->getMessage()]);
-            $channels = [];
-        }
+            $templates = MailTemplate::all();
+            $oldValues = [];
 
-        return view('communiquer', compact('templates', 'oldValues', 'channels'));
+            // Vérifier si on revient de la prévisualisation
+            if ($request->has('from_preview')) {
+                // Récupérer les données de communication depuis la session
+                $oldValues = $request->session()->get('communicationData', []);
+            } else {
+                // Les valeurs précédentes normales (en cas de rechargement ou d'erreur)
+                $oldValues = old();
+            }
+
+            try {
+                $channels = $this->rocketChatService->getChannels();
+            } catch (\Exception $e) {
+                Log::error('Failed to fetch RocketChat channels', ['error' => $e->getMessage()]);
+                $channels = [];
+            }
+
+            return view('Communiquer', compact('templates', 'oldValues', 'channels'));
+        } catch (\Exception $e) {
+            Log::error('Error in CommuniquerController@index', ['error' => $e->getMessage()]);
+            return view('Communiquer', ['templates' => [], 'oldValues' => [], 'channels' => []]);
+        }
     }
 
     /**
@@ -57,6 +71,7 @@ class CommuniquerController extends Controller
                 'subject' => $validated['subject'],
                 'content' => $validated['content'],
                 'email_addresses' => $validated['email_addresses'] ?? [],
+                'communication_type' => $request->input('communication_type', 'email'),
                 'rocket_chat_type' => $validated['rocket_chat_type'] ?? null,
                 'rocket_channels' => $validated['rocket_channels'] ?? [],
                 'rocket_users' => $validated['rocket_users'] ?? [],
@@ -64,14 +79,16 @@ class CommuniquerController extends Controller
 
             $request->session()->put('communicationData', $communicationData);
 
+            // Pour la prévisualisation, on utilise un tableau de destinataires plus simple
+            $recipients = $validated['email_addresses'] ?? [];
+
             return view('emailPreview', [
                 'subject' => $validated['subject'],
                 'content' => $validated['content'],
-                'recipients' => $validated['email_addresses'] ?? [],
+                'recipients' => $recipients,
                 'rocketChatType' => $validated['rocket_chat_type'] ?? null,
                 'rocketChannels' => $validated['rocket_channels'] ?? [],
-                'rocketUsers' => $validated['rocket_users'] ?? [],
-                'showModal' => true
+                'rocketUsers' => $validated['rocket_users'] ?? []
             ]);
         }
 
@@ -151,6 +168,40 @@ class CommuniquerController extends Controller
         } catch (\Exception $e) {
             Log::error("Erreur générale d'envoi de communication: " . $e->getMessage());
             return redirect()->route('communiquer')->with('error', 'Erreur lors de l\'envoi des communications');
+        }
+    }
+
+    /**
+     * Enregistre un modèle d'email
+     */
+    public function saveTemplate(Request $request)
+    {
+        $validated = $request->validate([
+            'subject' => 'required|string|max:100',
+            'content' => 'required|string',
+        ]);
+
+        try {
+            $template = new MailTemplate();
+            $template->subject = $validated['subject'];
+            $template->content = $validated['content'];
+            $template->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Modèle d\'email enregistré avec succès',
+                'template' => [
+                    'mail_template_id' => $template->mail_template_id,
+                    'subject' => $template->subject,
+                    'content' => $template->content
+                ]
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Erreur lors de l'enregistrement du modèle: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de l\'enregistrement du modèle'
+            ], 500);
         }
     }
 }

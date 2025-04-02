@@ -1,0 +1,39 @@
+/* adhesion Page Styles */
+h3 {
+    margin-bottom: 10rem;
+    margin-top: 5rem;
+    color: white;
+    font-weight: bold;
+}
+
+.achats-container {
+    background-color: var(--white);
+    padding: 20px;
+    margin: 20px auto;
+    width: 70%;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.no-achats {
+    text-align: center;
+}
+
+.hidden {
+    display: none;
+}
+
+.visible {
+    display: block;
+}
+
+.ticket-details {
+    margin-top: 10px;
+    height: 0;
+    overflow: hidden;
+    transition: height 0.3s ease-in-out;
+}
+
+.ticket-details.open {
+    max-height: auto;
+}

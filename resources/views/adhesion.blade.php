@@ -1,7 +1,7 @@
 @extends('template')
 
 @section('title')
-    Adhésion
+    Mon adhésion
 @endsection
 
 @section('head')

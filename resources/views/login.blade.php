@@ -1,7 +1,7 @@
 @extends('template')
 
 @section('title')
-    Se Connecter
+    Se connecter
 @endsection
 
 @section('head')
@@ -9,7 +9,7 @@
 @endsection
 
 @section('content')
-    <h3 id="login-title">Se Connecter</h3>
+    <h3 id="login-title">Se connecter</h3>
     <div id="login-container">
         @if ($errors->any())
             <div class="alert alert-dismissible alert-danger" id="error">
@@ -36,7 +36,7 @@
             </div>
 
             <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-primary">Se Connecter</button>
+                <button type="submit" class="btn btn-primary">Se connecter</button>
             </div>
         </form>
         <a href="{{route('register')}}">Créer un compte</a>

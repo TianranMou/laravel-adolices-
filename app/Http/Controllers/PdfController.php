@@ -16,7 +16,7 @@ class PdfController extends Controller
 
     public function parsePdf()
     {
-        $filePath = public_path('Majestic.pdf'); // Mets le bon chemin ici
+        $filePath = public_path('Majestic.pdf'); // le bon chemin ici
         $text = $this->pdfParserService->getText($filePath);
 
         return response()->json(['text' => $text]);

@@ -17,9 +17,9 @@ class ProfileController extends Controller
         $adhesion_valid = Adhesion::isValid($current_user->user_id);
         $statuses = Status::all();
         $groups = Group::all();
-        $site = Site::all();
-
-        return view('Profile', compact('current_user', 'adhesion_valid', 'statuses', 'groups','site'));
+        $sites = Site::all();
+        $current_user_sites = $current_user->sites->pluck('site_id')->toArray();
+        return view('Profile', compact('current_user', 'adhesion_valid', 'statuses', 'groups','sites','current_user_sites'));
     }
 
     /**
@@ -39,6 +39,10 @@ class ProfileController extends Controller
             'email_imt' => 'nullable|email|max:255|unique:users,email_imt,' . $user->user_id . ',user_id',
             'phone_number' => 'nullable|string|max:255',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validation de la photo
+            'site_ids' => 'nullable|array', // Validation pour plusieurs sites
+            'site_ids.*' => 'exists:site,site_id', // Vérifie que chaque site existe
+            'photo_release' => 'nullable|boolean', // Validation pour l'autorisation de diffusion
+            'photo_consent' => 'nullable|boolean', // Validation pour le consentement
         ]);
 
         // Mettre à jour les informations de l'utilisateur
@@ -49,6 +53,15 @@ class ProfileController extends Controller
         $user->email = $request->email;
         $user->email_imt = $request->email_imt;
         $user->phone_number = $request->phone_number;
+
+        // Mettre à jour les autorisations
+        $user->photo_release = $request->has('photo_release') ? $request->photo_release : false;
+        $user->photo_consent = $request->has('photo_consent') ? $request->photo_consent : false;
+
+        // Gérer les sites sélectionnés
+        if ($request->has('site_ids')) {
+            $user->sites()->sync($request->site_ids); // Synchronise les sites sélectionnés
+        }
 
         // Gérer l'upload de la photo
         if ($request->hasFile('photo')) {

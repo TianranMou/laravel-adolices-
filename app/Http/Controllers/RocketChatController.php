@@ -79,4 +79,47 @@ class RocketChatController extends Controller
         $response = $this->rocketChatService->sendMessage($roomId, $message);
         return response()->json($response);
     }
+
+    public function sendDirectMessage(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'type' => 'required|in:channel,user',
+                'channel' => 'required_if:type,channel|nullable|string',
+                'username' => 'required_if:type,user|nullable|string',
+                'message' => 'required|string',
+            ]);
+
+            $content = $validated['message'];
+            $success = false;
+            $message = '';
+
+            if ($validated['type'] === 'channel') {
+                $channelName = $validated['channel'];
+                $this->rocketChatService->sendMessageToChannel($channelName, $content);
+                $success = true;
+                $message = 'Message envoyé avec succès au canal ' . $channelName;
+            } else {
+                $username = $validated['username'];
+                $this->rocketChatService->createAndSendDirectMessage($username, $content);
+                $success = true;
+                $message = 'Message envoyé avec succès à ' . $username;
+            }
+
+            return response()->json([
+                'success' => $success,
+                'message' => $message
+            ]);
+        } catch (\Exception $e) {
+            Log::error('RocketChat message sending failed', [
+                'error' => $e->getMessage(),
+                'request' => $request->all()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de l\'envoi du message: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

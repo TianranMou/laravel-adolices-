@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Builder;
 
 class Ticket extends Model
 {
@@ -46,7 +48,6 @@ class Ticket extends Model
         return $this->belongsTo(Site::class, 'site_id', 'site_id');
     }
 
- 
     public function scopeDematerialized($query)
     {
         return $query->join('product', 'ticket.product_id', '=', 'product.product_id')
@@ -65,7 +66,6 @@ class Ticket extends Model
         return $query->get();
     }
 
-
     public static function getDematerializedTicketById($ticket_id)
     {
         return static::dematerialized()
@@ -74,10 +74,59 @@ class Ticket extends Model
                      ->first();
     }
 
-
     public static function getTicketByUserId($user_id)
     {
         return static::where('user_id', $user_id)->get();
+    }
+
+    public static function getAllTicketsWithRelations()
+    {
+        return static::with(['produit', 'user', 'site'])->get();
+    }
+
+    public static function findTicketWithRelations($ticket_id)
+    {
+        return static::with(['produit', 'user', 'site'])->find($ticket_id);
+    }
+
+    public static function createTicket(array $data)
+    {
+        $validator = Validator::make($data, [
+            'product_id' => 'required|exists:product,product_id',
+            'user_id' => 'nullable|exists:users,user_id',
+            'site_id' => 'required|exists:site,site_id',
+            'ticket_link' => 'required|string|max:255',
+            'partner_code' => 'required|string|max:255',
+            'partner_id' => 'required|string|max:255', 
+            'validity_date' => 'required|date',
+            'purchase_date' => 'required|date',
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        return static::create($data);
+    }
+
+    public function updateTicket(array $data)
+    {
+        $validator = Validator::make($data, [
+            'product_id' => 'required|exists:product,product_id',
+            'user_id' => 'nullable|exists:users,user_id',
+            'site_id' => 'required|exists:site,site_id',
+            'ticket_link' => 'required|string|max:255',
+            'partner_code' => 'required|string|max:255',
+            'partner_id' => 'required|string|max:255', 
+            'validity_date' => 'required|date',
+            'purchase_date' => 'required|date',
+        ]);
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+
+        return $this->update($data);
     }
 
     protected static function boot()
@@ -87,7 +136,7 @@ class Ticket extends Model
         static::saving(function ($model) {
             $validator = Validator::make($model->getAttributes(), [
                 'product_id' => 'required|exists:product,product_id',
-                'user_id' => 'required|exists:users,user_id',
+                'user_id' => 'nullable|exists:users,user_id',
                 'site_id' => 'required|exists:site,site_id',
                 'ticket_link' => 'nullable|string',
                 'partner_code' => 'nullable|string',
@@ -101,4 +150,47 @@ class Ticket extends Model
             }
         });
     }
+
+    public static function getNbTicketByProductId($product_id){
+        return Ticket::where('product_id', $product_id)
+                     ->count();
+    }
+
+    public static function getAggregatedTicketsForUser(int $user_id): Collection
+    {
+        $tickets = static::where('user_id', $user_id)
+            ->with(['produit', 'site'])
+            ->orderBy('purchase_date', 'desc')
+            ->get();
+
+        return self::aggregateTicketsByProduct($tickets);
+    }
+
+    private static function aggregateTicketsByProduct(Collection $tickets): Collection
+    {
+        return $tickets->groupBy('product_id')->map(function ($productTickets) {
+            $firstTicket = $productTickets->first();
+            $totalPrice = $productTickets->sum(function ($ticket) {
+                return $ticket->produit->price;
+            });
+
+            return [
+                'product_name' => $firstTicket->produit->product_name,
+                'site_label' => $firstTicket->site->label_site,
+                'total_quantity' => $productTickets->count(),
+                'total_price' => $totalPrice,
+                'tickets' => $productTickets->map(function ($ticket) {
+                    return [
+                        'ticket_id' => $ticket->ticket_id,
+                        'purchase_date' => $ticket->purchase_date->format('d/m/Y H:i'),
+                        'price' => $ticket->produit->price,
+                        'ticket_link' => $ticket->ticket_link,
+                    ];
+                }),
+            ];
+        })->sortByDesc(function ($aggregatedTicket) {
+            return $aggregatedTicket['tickets']->max('purchase_date');
+        })->values();
+    }
+
 }

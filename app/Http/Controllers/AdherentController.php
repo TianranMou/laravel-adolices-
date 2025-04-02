@@ -10,6 +10,7 @@ use App\Models\Site;
 use App\Models\SiteUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class AdherentController extends Controller
 {
@@ -308,6 +309,12 @@ class AdherentController extends Controller
 
             // Delete any family members
             DB::table('family_members')->where('user_id', $user_id)->delete();
+
+            // Delete the user's folder
+            $userFolder = $user_id;
+            if (Storage::disk('public')->exists($userFolder)) {
+                Storage::disk('public')->deleteDirectory($userFolder);
+            }
 
             // Delete the user
             $user->delete();

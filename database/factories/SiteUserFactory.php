@@ -19,7 +19,7 @@ class SiteUserFactory extends Factory
     public function definition(): array
     {
         return [
-            'site_id' => Site::factory(),
+            'site_id' => rand(1, 5),
             'user_id' => User::inRandomOrder()->first()->user_id ?? User::factory()->create([
                 'status_id' => 1,
                 'group_id' => 1,

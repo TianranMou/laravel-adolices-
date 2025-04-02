@@ -11,11 +11,13 @@ use Illuminate\Validation\ValidationException;
 
 class RegisterController extends Controller
 {
+    //samuuu
     public function index()
     {
         $statuses = Status::all();
         $groups = Group::all();
-        return view('register', compact('statuses', 'groups'));
+        $sites = \App\Models\Site::all(); // Récupérer tous les sites
+        return view('register', compact('statuses', 'groups', 'sites'));
     }
 
     public function store(Request $request)
@@ -29,6 +31,8 @@ class RegisterController extends Controller
             'email_imt' => 'nullable|email|max:255|unique:users,email_imt',
             'password' => 'required|string|min:8|confirmed',
             'phone_number' => 'nullable|string|max:255',
+            'site_ids' => 'nullable|array', // Validation pour plusieurs sites
+            'site_ids.*' => 'exists:site,site_id', // Vérifie que chaque site existe
         ]);
 
         $user = User::create([
@@ -45,10 +49,13 @@ class RegisterController extends Controller
             'is_admin' => false,
         ]);
 
+        // Associer les sites sélectionnés
+        if ($request->has('site_ids')) {
+            $user->sites()->sync($request->site_ids);
+        }
+
         auth()->login($user);
 
         return redirect()->route('login')->with('success', 'Registration successful!');
     }
-
-
 }

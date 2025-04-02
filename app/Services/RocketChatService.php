@@ -95,26 +95,53 @@ class RocketChatService
     {
         $markdownMessage = $this->convertHtmlToMarkdown($message);
         try {
+            Log::info('Attempting to send message', [
+                'roomId' => $roomId,
+                'url' => "{$this->baseUrl}/api/v1/chat.postMessage",
+                'headers' => $this->getHeaders()
+            ]);
+
             $response = Http::withHeaders($this->getHeaders())
                 ->post("{$this->baseUrl}/api/v1/chat.postMessage", [
                     'roomId' => $roomId,
                     'text' => $markdownMessage,
                 ]);
 
+            // Log the raw response for debugging
+            Log::info('RocketChat API response', [
+                'status' => $response->status(),
+                'headers' => $response->headers(),
+                'body' => $response->body()
+            ]);
+
             if (!$response->successful()) {
+                // Check if the response is HTML (likely a login page)
+                if (str_contains($response->body(), '<!DOCTYPE html>')) {
+                    Log::error('RocketChat API returned HTML response (likely authentication issue)', [
+                        'status' => $response->status(),
+                        'url' => "{$this->baseUrl}/api/v1/chat.postMessage",
+                        'roomId' => $roomId
+                    ]);
+                    throw new \RuntimeException('Authentication failed with RocketChat server');
+                }
+
                 Log::error('RocketChat API error', [
                     'status' => $response->status(),
                     'body' => $response->body(),
-                    'url' => "{$this->baseUrl}/api/v1/chat.postMessage"
+                    'url' => "{$this->baseUrl}/api/v1/chat.postMessage",
+                    'roomId' => $roomId,
+                    'headers' => $response->headers()
                 ]);
-                throw new \RuntimeException('Failed to send RocketChat message');
+                throw new \RuntimeException('Failed to send RocketChat message: ' . $response->body());
             }
 
             return $response->json();
         } catch (\Exception $e) {
             Log::error('RocketChat API exception', [
                 'message' => $e->getMessage(),
-                'url' => "{$this->baseUrl}/api/v1/chat.postMessage"
+                'url' => "{$this->baseUrl}/api/v1/chat.postMessage",
+                'roomId' => $roomId,
+                'trace' => $e->getTraceAsString()
             ]);
             throw $e;
         }
@@ -123,25 +150,71 @@ class RocketChatService
     public function createDirectMessage($username)
     {
         try {
+            // Remove @ symbol if present
+            $username = ltrim($username, '@');
+
+            Log::info('Attempting to create direct message', [
+                'username' => $username,
+                'url' => "{$this->baseUrl}/api/v1/im.create",
+                'headers' => $this->getHeaders()
+            ]);
+
+            // First verify if the user exists
+            $userResponse = Http::withHeaders($this->getHeaders())
+                ->get("{$this->baseUrl}/api/v1/users.info", [
+                    'username' => $username
+                ]);
+
+            if (!$userResponse->successful()) {
+                Log::error('User not found or not accessible', [
+                    'username' => $username,
+                    'status' => $userResponse->status(),
+                    'body' => $userResponse->body()
+                ]);
+                throw new \RuntimeException("User '$username' not found or not accessible");
+            }
+
+            // Now create the direct message
             $response = Http::withHeaders($this->getHeaders())
                 ->post("{$this->baseUrl}/api/v1/im.create", [
                     'username' => $username,
                 ]);
 
+            // Log the raw response for debugging
+            Log::info('RocketChat API response', [
+                'status' => $response->status(),
+                'headers' => $response->headers(),
+                'body' => $response->body()
+            ]);
+
             if (!$response->successful()) {
+                // Check if the response is HTML (likely a login page)
+                if (str_contains($response->body(), '<!DOCTYPE html>')) {
+                    Log::error('RocketChat API returned HTML response (likely authentication issue)', [
+                        'status' => $response->status(),
+                        'url' => "{$this->baseUrl}/api/v1/im.create",
+                        'username' => $username
+                    ]);
+                    throw new \RuntimeException('Authentication failed with RocketChat server');
+                }
+
                 Log::error('RocketChat API error', [
                     'status' => $response->status(),
                     'body' => $response->body(),
-                    'url' => "{$this->baseUrl}/api/v1/im.create"
+                    'url' => "{$this->baseUrl}/api/v1/im.create",
+                    'username' => $username,
+                    'headers' => $response->headers()
                 ]);
-                throw new \RuntimeException('Failed to create RocketChat direct message');
+                throw new \RuntimeException('Failed to create RocketChat direct message: ' . $response->body());
             }
 
             return $response->json();
         } catch (\Exception $e) {
             Log::error('RocketChat API exception', [
                 'message' => $e->getMessage(),
-                'url' => "{$this->baseUrl}/api/v1/im.create"
+                'url' => "{$this->baseUrl}/api/v1/im.create",
+                'username' => $username,
+                'trace' => $e->getTraceAsString()
             ]);
             throw $e;
         }
@@ -214,5 +287,41 @@ class RocketChatService
         $markdown = html_entity_decode($markdown);
 
         return $markdown;
+    }
+
+    public function sendMessageToChannel($channelName, $message)
+    {
+        try {
+            // First get the channel ID
+            $response = Http::withHeaders($this->getHeaders())
+                ->get("{$this->baseUrl}/api/v1/channels.info", [
+                    'roomName' => $channelName
+                ]);
+
+            if (!$response->successful()) {
+                Log::error('RocketChat API error', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'url' => "{$this->baseUrl}/api/v1/channels.info"
+                ]);
+                throw new \RuntimeException('Failed to get channel info');
+            }
+
+            $channelData = $response->json();
+            $roomId = $channelData['channel']['_id'] ?? null;
+
+            if (!$roomId) {
+                throw new \RuntimeException('Failed to get channel ID');
+            }
+
+            // Now send the message to the channel
+            return $this->sendMessage($roomId, $message);
+        } catch (\Exception $e) {
+            Log::error('RocketChat API exception', [
+                'message' => $e->getMessage(),
+                'channel' => $channelName
+            ]);
+            throw $e;
+        }
     }
 }

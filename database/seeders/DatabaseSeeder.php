@@ -10,6 +10,7 @@ use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use PSpell\Config;
+use Tests\Feature\ShopTest;
 
 class DatabaseSeeder extends Seeder
 {
@@ -18,28 +19,43 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-        $this->call([
-            StatusSeeder::class,
-            GroupSeeder::class,
-            ConfigSeeder::class,
-            QuotaSeeder::class,
-            ShopSeeder::class,
-            MailTemplateSeeder::class,
-            StateSubSeeder::class,
-            SiteSeeder::class,
+        if (!env('APP_DEBUG')) {
+            //for prod use
+            $this->call([
+                StatusSeeder::class,
+                GroupSeeder::class,
+                ConfigSeeder::class,
+                QuotaSeeder::class,
+                StateSubSeeder::class,
+                SiteSeeder::class,
+                FamilyRelationSeeder::class,
+                MailTemplateSeeder::class,
+            ]);
+        }
+        else {
+            //for dev use
+            $this->call([
+                StatusSeeder::class,
+                GroupSeeder::class,
+                ConfigSeeder::class,
+                QuotaSeeder::class,
+                ShopSeeder::class,
+                MailTemplateSeeder::class,
+                StateSubSeeder::class,
+                SiteSeeder::class,
+                FamilyRelationSeeder::class,
 
-            UserSeeder::class,
-            SiteUserSeeder::class,
-            AdhesionSeeder::class,
-            AdministratorSeeder::class,
-            ProductSeeder::class,
+                UserSeeder::class,
+                SiteUserSeeder::class,
+                AdhesionSeeder::class,
+                AdministratorSeeder::class,
+                ProductSeeder::class,
 
-            SubventionSeeder::class,
-            TicketSeeder::class,
+                SubventionSeeder::class,
+                TicketSeeder::class,
 
-            FamilyRelationSeeder::class,
-            FamilyMemberSeeder::class,
-        ]);
+                FamilyMemberSeeder::class,
+            ]);
+        }
     }
 }

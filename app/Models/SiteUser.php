@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 
 class SiteUser extends Model
 {
@@ -45,6 +47,17 @@ class SiteUser extends Model
             if ($validator->fails()) {
                 throw new ValidationException($validator);
             }
+        });
+    }
+
+    public static function createTable()
+    {
+        Schema::create('site_user', function (Blueprint $table) {
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('site_id');
+            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
+            $table->foreign('site_id')->references('site_id')->on('site')->onDelete('cascade');
+            $table->primary(['user_id', 'site_id']);
         });
     }
 }

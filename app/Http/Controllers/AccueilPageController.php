@@ -34,12 +34,15 @@ class AccueilPageController extends Controller
         //$allShops = Shop::all();
         $shops = [];
         $billeteries = [];
-        foreach ($allShops as $key => $value) {
-            if(!$value->end_date ){
-                $shops[$key] = $value;
-            }
-            else{
-                $billeteries[$key] = $value;
+
+        if ($allShops->isNotEmpty()) {
+            foreach ($allShops as $key => $value) {
+                if($value->end_date ){
+                    $shops[$key] = $value;
+                }
+                else{
+                    $billeteries[$key] = $value;
+                }
             }
         }
         //dd($shops,$billeteries);

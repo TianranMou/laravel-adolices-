@@ -20,8 +20,8 @@ class SiteSeeder extends Seeder
             ['label_site'=>'Douai Lahure'],
             ['label_site'=>'Douai MDE'],
             ['label_site'=>'Villeneuve d\'Ascq'],
-            ['label_site'=>'Dunkerque']  
-            ]   
+            ['label_site'=>'Dunkerque']
+            ]
         );
 
     }

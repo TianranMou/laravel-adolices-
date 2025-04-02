@@ -1,0 +1,55 @@
+/* subvention management Page Styles */
+h3 {
+    margin-bottom: 10rem;
+    margin-top: 5rem;
+    color: white;
+}
+
+.inquiries-container {
+    background-color: var(--white);
+    padding: 20px;
+    margin: 20px auto;
+    width: 70%;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.inquiry-card {
+    border: 1px solid #ccc;
+    margin-bottom: 20px;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.inquiry-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.details-button {
+    width: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2em;
+}
+
+.ticket-details {
+    margin-top: 10px;
+    height: 0;
+    overflow: hidden;
+    transition: height 0.3s ease-in-out;
+}
+
+.form-group {
+    margin-bottom: 10px;
+}
+
+.disabled-input {
+    background-color: #f0f0f0;
+    color: #777;
+    border: 1px solid #ccc;
+}

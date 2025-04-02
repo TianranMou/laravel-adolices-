@@ -3,21 +3,37 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+//use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 class Site extends Model
 {
-    use HasFactory;
-    public $timestamps = false;
+    //use HasFactory;
+
     protected $table = 'site';
     protected $primaryKey = 'site_id';
-    protected $connection = 'mysql';
+    public $timestamps = false;
 
     protected $fillable = [
         'label_site',
     ];
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'site_user', 'site_id', 'user_id');
+    }
+
+    public static function findByLabel(string $label): ?self
+    {
+        return static::where('label_site', $label)->first();
+    }
+
+    public static function findOrCreateByLabel(string $label): self
+    {
+        return static::firstOrCreate(['label_site' => $label]);
+    }
 
     protected static function boot()
     {

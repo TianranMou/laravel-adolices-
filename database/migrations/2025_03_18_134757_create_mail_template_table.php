@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('template_mail', function (Blueprint $table) {
             $table->increments('mail_template_id');
             $table->unsignedInteger('shop_id')->nullable();
-            $table->foreign('shop_id')->references('shop_id')->on('shop');
+            $table->foreign('shop_id')->references('shop_id')->on('shop')->onDelete('set null');
             $table->string('subject', 100);
             $table->text('content');
         });
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mail_template');
+        Schema::dropIfExists('template_mail');
     }
 };
