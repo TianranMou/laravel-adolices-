@@ -58,7 +58,14 @@
                 </div>
 
                 <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-primary">Soumettre la demande</button>
+                    <button type="submit" class="btn btn-primary" {{ isset($sub_available) && !$sub_available ? 'disabled' : '' }}>
+                        Soumettre la demande
+                    </button>
+                    @if(isset($sub_available) && !$sub_available)
+                        <div class="alert alert-info mt-2">
+                            <small>Vous avez déjà reçu une subvention pour cette année. Vous ne pouvez pas soumettre une nouvelle demande.</small>
+                        </div>
+                    @endif
                 </div>
             </form>
             <br><br>
@@ -105,7 +112,7 @@
                         @foreach($previous_subventions as $subvention)
                             <tr>
                                 <td>{{ $subvention->name_asso }}</td>
-                                <td>{{ $subvention->montant }}</td>
+                                <td>{{ $subvention->montant }}€</td>
                                 <td>{{ $subvention->payment_subvention ? $subvention->payment_subvention->format('d/m/Y') : 'Non payée' }}</td>
                                 <td>{{ $subvention->state->label_state }}</td>
                                 <td>{{ $subvention->motif_refus ?? '-' }}</td>

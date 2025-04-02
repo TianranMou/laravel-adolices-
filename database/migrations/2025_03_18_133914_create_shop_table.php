@@ -19,11 +19,11 @@ return new class extends Migration
             $table->integer('min_limit')->nullable();
             $table->date('end_date')->nullable();
             $table->boolean('is_active')->default(true);
-            $table->string('thumbnail', 250);
-            $table->string('doc_link', 250);
-            $table->string('bc_link', 250);
-            $table->string('ha_link', 250);
-            $table->string('photo_link', 250);
+            $table->string('thumbnail', 250)->nullable();
+            $table->string('doc_link', 250)->nullable();
+            $table->string('bc_link', 250)->nullable();
+            $table->string('ha_link', 250)->nullable();
+            $table->string('photo_link', 250)->nullable();
             $table->timestamps();
         });
     }

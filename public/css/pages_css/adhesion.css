@@ -51,12 +51,12 @@ h3 {
 }
 
 #state_adhesion a:hover {
-    background-color: #45A049;
+    background-color: var(--lightYellow);
     transform: scale(1.05);
 }
 
 #valid{
-    color: limegreen;
+    color: var(--darkGreen);
 }
 
 #not_valid{

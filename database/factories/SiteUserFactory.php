@@ -18,15 +18,71 @@ class SiteUserFactory extends Factory
      */
     public function definition(): array
     {
+        // Use static cache to track combinations across multiple factory instances
+        static $generatedCombinations = null;
+
+        // Initialize the cache with existing combinations from the database
+        if ($generatedCombinations === null) {
+            $generatedCombinations = [];
+            $existingCombos = SiteUser::select('site_id', 'user_id')->get();
+
+            foreach ($existingCombos as $combo) {
+                $key = $combo->site_id . '-' . $combo->user_id;
+                $generatedCombinations[$key] = true;
+            }
+        }
+
+        $maxAttempts = 20;
+        $attempts = 0;
+        $siteId = null;
+        $userId = null;
+
+        do {
+            $attempts++;
+
+            // Get a random site
+            $site = Site::inRandomOrder()->first();
+            if (!$site) {
+                $site = Site::factory()->create();
+            }
+            $siteId = $site->site_id;
+
+            // After several attempts, create a new user to ensure uniqueness
+            if ($attempts > 10) {
+                $user = User::factory()->create([
+                    'status_id' => 1,
+                    'group_id' => 1,
+                    'photo_release' => true,
+                    'photo_consent' => true,
+                    'is_admin' => false
+                ]);
+                $userId = $user->user_id;
+            } else {
+                $user = User::inRandomOrder()->first();
+                if (!$user) {
+                    $user = User::factory()->create([
+                        'status_id' => 1,
+                        'group_id' => 1,
+                        'photo_release' => true,
+                        'photo_consent' => true,
+                        'is_admin' => false
+                    ]);
+                }
+                $userId = $user->user_id;
+            }
+
+            // Check if this combination already exists
+            $combinationKey = $siteId . '-' . $userId;
+            $exists = isset($generatedCombinations[$combinationKey]);
+
+        } while ($exists && $attempts <= $maxAttempts);
+
+        // Mark this combination as used even before it's saved to the database
+        $generatedCombinations[$siteId . '-' . $userId] = true;
+
         return [
-            'site_id' => rand(1, 5),
-            'user_id' => User::inRandomOrder()->first()->user_id ?? User::factory()->create([
-                'status_id' => 1,
-                'group_id' => 1,
-                'photo_release' => true,
-                'photo_consent' => true,
-                'is_admin' => false
-            ])->user_id,
+            'site_id' => $siteId,
+            'user_id' => $userId,
         ];
     }
 }

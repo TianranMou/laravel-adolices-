@@ -9,7 +9,7 @@
 @endsection
 
 @section('content')
-    <div id="acceuil-container">
+    <div id="acceuil-container"><!-- Titres -->
         <h3 id="accueil_title">Bienvenue sur le site d'Adolices</h3>
         @if (!$adhesion_valid&&$current_user)
             <section id="state_adhesion">
@@ -22,6 +22,7 @@
         <br>
         <section class="shops">
             @if(!empty($shops))
+                <!-- boutiques temporaires -->
                 <div id="activites">
                     <h3 id="shops_title">Événements/Sorties</h3>
                     <div class="shops-cards">
@@ -44,6 +45,7 @@
             @endif
 
             @if(!empty($billeteries))
+                <!-- boutiques permanantes -->
                 <br>
                 @if(!empty($shops))
                     <div id="billeteries">
@@ -70,7 +72,7 @@
                 </div>
             @endif
         </section>
-        @if ($presentation)
+        @if ($presentation)<!-- présentation de l'Association -->
             <section class="card">
                 <div class="card-body prose max-w-none">
                     {!! $presentation !!}

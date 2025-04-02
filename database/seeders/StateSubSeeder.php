@@ -14,7 +14,7 @@ class StateSubSeeder extends Seeder
     public function run(): void
     {
 
-        $labelState=["En cours","Refusé","Payé"];
+        $labelState=["En cours","Refusée","Payée"];
 
         foreach ($labelState as $label) {
             StateSub::factory()->create([

@@ -8,10 +8,10 @@ use App\Models\Group;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rule;
 
 class RegisterController extends Controller
 {
-    //samuuu
     public function index()
     {
         $statuses = Status::all();
@@ -27,13 +27,33 @@ class RegisterController extends Controller
             'group_id' => 'required|exists:group,group_id',
             'last_name' => 'required|string|max:255',
             'first_name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email',
-            'email_imt' => 'nullable|email|max:255|unique:users,email_imt',
+            'email' => [
+                'nullable',
+                'email',
+                'max:255',
+                'unique:users,email',
+                Rule::unique('users', 'email_imt')->ignore($request->email_imt, 'email'),
+            ],
+            'email_imt' => [
+                'nullable',
+                'email',
+                'max:255',
+                'unique:users,email_imt',
+                Rule::unique('users', 'email')->ignore($request->email, 'email_imt'),
+            ],
             'password' => 'required|string|min:8|confirmed',
             'phone_number' => 'nullable|string|max:255',
-            'site_ids' => 'nullable|array', // Validation pour plusieurs sites
-            'site_ids.*' => 'exists:site,site_id', // Vérifie que chaque site existe
+            'site_ids' => 'nullable|array',
+            'site_ids.*' => 'exists:site,site_id',
+            'photo_release' => 'nullable|boolean',
+            'photo_consent' => 'nullable|boolean',
         ]);
+
+        if (empty($request->email) && empty($request->email_imt)) {
+            throw ValidationException::withMessages([
+                'email' => ['Au moins un email (personnel ou IMT) doit être renseigné.'],
+            ]);
+        }
 
         $user = User::create([
             'status_id' => $request->status_id,
@@ -44,8 +64,8 @@ class RegisterController extends Controller
             'email_imt' => $request->email_imt,
             'password' => Hash::make($request->password),
             'phone_number' => $request->phone_number,
-            'photo_release' => false,
-            'photo_consent' => false,
+            'photo_release' => $request->has('photo_release') ? true : false,
+            'photo_consent' => $request->has('photo_consent') ? true : false,
             'is_admin' => false,
         ]);
 

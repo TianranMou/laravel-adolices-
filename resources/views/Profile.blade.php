@@ -11,6 +11,20 @@
 
 @section('content')
     <h1 id="profile-title">Mon profil</h1>
+
+    <!-- Afficher les messages de succès ou d'erreur -->
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div id="profile-content">
         <form id="profile-form" method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data">
             @csrf
@@ -75,7 +89,7 @@
                 <div class="profile-photo-container mb-2">
                     <img src="{{ $current_user->photo ? asset($current_user->photo) : asset('images/default-profile.png') }}" alt="Photo de profil" id="profile_photo_preview" class="img-thumbnail">
                 </div>
-                <input type="file" id="photo" name="photo" class="form-control">
+                <input type="file" id="photo" name="photo" class="form-control" accept="image/*">
             </div>
 
             <!-- Sites de référence -->

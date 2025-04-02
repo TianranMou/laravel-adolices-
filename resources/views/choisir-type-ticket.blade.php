@@ -1,5 +1,9 @@
 @extends('template')
 
+@php
+    $admin_page = true;
+@endphp
+
 @section('title')
     Choisir Type Ticket
 @endsection

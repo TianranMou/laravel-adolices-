@@ -6,6 +6,10 @@ use App\Models\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Product;
+use App\Services\PdfParserService;
+use DateTime;
+
 
 class TicketController extends Controller
 {
@@ -139,7 +143,10 @@ class TicketController extends Controller
             $uploadedTickets[] = $fileName;
         }
 
-        return back()->with('success', 'Tickets ajoutés avec succès : ' . implode(', ', $uploadedTickets));
+        return redirect()->route('tickets.majestic', ['product_id' => $product_id])
+            ->with('success', 'Tickets correctement téléchargés.')
+            ->with('delay', true);
+
     }
 
     public function viewTicket(Request $request, $ticketId)

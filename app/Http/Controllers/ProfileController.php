@@ -45,63 +45,51 @@ class ProfileController extends Controller
             'photo_consent' => 'nullable|boolean', // Validation pour le consentement
         ]);
 
-        // Mettre à jour les informations de l'utilisateur
-        $user->status_id = $request->status_id;
-        $user->group_id = $request->group_id;
-        $user->last_name = $request->last_name;
-        $user->first_name = $request->first_name;
-        $user->email = $request->email;
-        $user->email_imt = $request->email_imt;
-        $user->phone_number = $request->phone_number;
+        try {
+            // Mettre à jour les informations de l'utilisateur
+            $user->status_id = $request->status_id;
+            $user->group_id = $request->group_id;
+            $user->last_name = $request->last_name;
+            $user->first_name = $request->first_name;
+            $user->email = $request->email;
+            $user->email_imt = $request->email_imt;
+            $user->phone_number = $request->phone_number;
 
-        // Mettre à jour les autorisations
-        $user->photo_release = $request->has('photo_release') ? $request->photo_release : false;
-        $user->photo_consent = $request->has('photo_consent') ? $request->photo_consent : false;
+            // Mettre à jour les autorisations
+            $user->photo_release = $request->has('photo_release') ? $request->photo_release : false;
+            $user->photo_consent = $request->has('photo_consent') ? $request->photo_consent : false;
 
-        // Gérer les sites sélectionnés
-        if ($request->has('site_ids')) {
-            $user->sites()->sync($request->site_ids); // Synchronise les sites sélectionnés
-        }
+            // Gérer les sites sélectionnés
+            if ($request->has('site_ids')) {
+                $user->sites()->sync($request->site_ids); // Synchronise les sites sélectionnés
+            }
 
-        // Gérer l'upload de la photo
-        if ($request->hasFile('photo')) {
-            $file = $request->file('photo');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $filePath = $file->move(public_path('userPhotos'), $fileName);
+            // Gérer l'upload de la photo
+            if ($request->hasFile('photo')) {
+                // Supprimer l'ancienne photo si elle existe
+                if ($user->photo) {
+                    $oldPhotoPath = public_path($user->photo);
+                    if (file_exists($oldPhotoPath)) {
+                        unlink($oldPhotoPath);
+                    }
+                }
+                // Enregistrer la nouvelle photo
+                $file = $request->file('photo');
+                $fileName = time() . '_' . $file->getClientOriginalName();
+                $filePath = $file->move(public_path('userPhotos'), $fileName);
 
-            // Enregistrer le chemin de la photo dans la base de données
-            $user->photo = 'userPhotos/' . $fileName;
-        }
+                // Enregistrer le chemin de la photo dans la base de données
+                $user->photo = 'userPhotos/' . $fileName;
+            }
 
-        $user->save();
-
-        return redirect()->back()->with('success', 'Profil mis à jour avec succès.');
-    }
-
-    /**
-     * Update the user's profile photo
-     */
-    public function updatePhoto(Request $request)
-    {
-        $user = Auth::user();
-
-        // Validate the uploaded file
-        $request->validate([
-            'profile_photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
-
-        // Handle the file upload
-        if ($request->hasFile('profile_photo')) {
-            $file = $request->file('profile_photo');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $filePath = $file->storeAs('profile_photos', $fileName, 'public');
-
-            // Update the user's photo path
-            $user->photo = '/storage/' . $filePath;
             $user->save();
-        }
 
-        return redirect()->route('profile')->with('success', 'Photo de profil mise à jour avec succès.');
+            // Retourner un message de succès
+            return redirect()->back()->with('success', 'Profil mis à jour avec succès.');
+        } catch (\Exception $e) {
+            // Retourner un message d'erreur en cas d'exception
+            return redirect()->back()->with('error', 'Une erreur est survenue lors de la mise à jour du profil.');
+        }
     }
 }
 

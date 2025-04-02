@@ -1,7 +1,7 @@
 @extends('template')
 
 @section('title')
-    Mon adhésion
+    Mon Adhésion
 @endsection
 
 @section('head')
@@ -10,7 +10,7 @@
 
 @section('content')
     <section id="adhesion_title">
-            <h3>Adhésion</h3>
+            <h3>Mon Adhésion</h3>
     </section>
     <div id="adhesion-container">
         <br>

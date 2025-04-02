@@ -5,11 +5,21 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Class BureauPageController
+ *
+ * This controller handles the logic for displaying the bureau (board members) page.
+ */
 class BureauPageController extends Controller
 {
+    /**
+     * Display the bureau page with the list of board members and user adhesion status.
+     *
+     * @return \Illuminate\View\View The view for the bureau page.
+     */
     public function index()
     {
-        // Définir les membres du bureau en tant que tableau associatif
+        // Define the board members as an associative array
         $bureau_data = [
             [
                 'name' => 'Jean Dupont',
@@ -38,16 +48,17 @@ class BureauPageController extends Controller
             ]
         ];
 
-        //à recup
-
+        // Retrieve the currently authenticated user
         $current_user = Auth::user();
-        if(env("APP_DEBUG")){
-            $adhesion_valid = true;
-        }else{
+
+        // Determine if the user's adhesion is valid
+        if (env("APP_DEBUG")) {
+            $adhesion_valid = true; // Always valid in debug mode
+        } else {
             $adhesion_valid = $current_user ? $current_user->hasUpToDateAdhesion() : false;
         }
 
-        // Passer les données à la vue
-        return view('Bureau', compact('bureau_data','adhesion_valid','current_user'));
+        // Pass the data to the view
+        return view('Bureau', compact('bureau_data', 'adhesion_valid', 'current_user'));
     }
 }

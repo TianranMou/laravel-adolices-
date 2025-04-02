@@ -1,8 +1,16 @@
 @extends('template')
 
+@php
+    $admin_page = true;
+@endphp
+
 @section('title')
     Ajouter un Ticket
 @endsection
+
+@php
+    $admin_page = true;
+@endphp
 
 @section('head')
     <link rel="stylesheet" href="{{ asset('css/pages_css/ajouter_ticket.css') }}">
@@ -10,7 +18,7 @@
 
 @section('content')
 
-<form method="POST" action="/ajouter-ticket-majestic" class="form-floating mb-3" enctype="multipart/form-data">
+<form method="POST" action="{{ route('tickets.majestic', ['product_id' => $product_id]) }}" class="form-floating mb-3" enctype="multipart/form-data">
     @csrf
     <div class="upload-container">
         <h4>Sélectionnez des tickets Majestic à uploader</h4>
@@ -23,5 +31,8 @@
 </form>
 
 @endsection
+
+
+
 
 

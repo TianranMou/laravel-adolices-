@@ -77,9 +77,12 @@ class Adhesion extends Model
     public static function isValid($userId): bool
     {
         $now = Carbon::now();
-
-        $startOfSchoolYear = Carbon::create($now->month >= 9 ? $now->year : $now->year - 1, 9, 1, 0, 0, 0);
-        $endOfSchoolYear = Carbon::create($now->month >= 9 ? $now->year + 1 : $now->year, 8, 31, 23, 59, 59);
+        $adhesionCutoff = env('ADHESION_MONTH_DAY', '07-31');
+        [$adhesionMonth, $adhesionDay] = explode('-', $adhesionCutoff);
+        $adhesionMonth = (int)$adhesionMonth;
+        $adhesionDay = (int)$adhesionDay;
+        $startOfSchoolYear = Carbon::create($now->month >= $adhesionMonth+1 ? $now->year : $now->year - 1, $adhesionMonth+1, 1, 0, 0, 0);
+        $endOfSchoolYear = Carbon::create($now->month >= $adhesionMonth ? $now->year + 1 : $now->year, $adhesionMonth, $adhesionDay, 23, 59, 59);
 
         return static::where('user_id', $userId)
             ->whereBetween('date_adhesion', [$startOfSchoolYear, $endOfSchoolYear])

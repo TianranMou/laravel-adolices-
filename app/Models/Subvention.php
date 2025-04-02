@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Carbon;
 
 class Subvention extends Model
 {
@@ -67,6 +68,15 @@ class Subvention extends Model
         });
     }
 
+    /**
+     * Retrieve the last pending subvention for a specific user.
+     *
+     * A pending subvention is identified by its `state_id` being 1.
+     * The method returns the most recent subvention based on the `subvention_id` in descending order.
+     *
+     * @param int $userId The ID of the user.
+     * @return Subvention|null The last pending subvention for the user, or null if none exists.
+     */
     public static function getLastPendingSubventionForUser(int $userId): ?Subvention
     {
         return self::where('user_id', $userId)
@@ -75,6 +85,17 @@ class Subvention extends Model
             ->first();
     }
 
+
+    /**
+     * Retrieve all resolved subventions for a specific user.
+     *
+     * A resolved subvention is identified by having a non-null `payment_subvention`.
+     * The results are ordered by `payment_subvention` in descending order,
+     * and then by `subvention_id` in descending order.
+     *
+     * @param int $userId The ID of the user.
+     * @return \Illuminate\Database\Eloquent\Collection A collection of resolved subventions for the user.
+     */
     public static function getResolvedSubventionsForUser(int $userId): \Illuminate\Database\Eloquent\Collection
     {
         return self::where('user_id', $userId)
@@ -83,7 +104,33 @@ class Subvention extends Model
             ->orderBy('subvention_id', 'desc')
             ->get();
     }
-    
+
+    /**
+     * Check if a subvention is available for a specific user.
+     *
+     * A subvention is considered unavailable if there exists a subvention for the user
+     * within the current school year (determined by the `ADHESION_MONTH_DAY` environment variable)
+     * that has a `state_id` of 3.
+     *
+     * @param int $userId The ID of the user.
+     * @return bool True if a subvention is available, false otherwise.
+     */
+    public static function isSubventionAvailable(int $userId): bool
+    {
+        $now = Carbon::now();
+        $adhesionCutoff = env('ADHESION_MONTH_DAY', '07-31');
+        [$adhesionMonth, $adhesionDay] = explode('-', $adhesionCutoff);
+        $adhesionMonth = (int)$adhesionMonth;
+        $adhesionDay = (int)$adhesionDay;
+        $startOfSchoolYear = Carbon::create($now->month >= $adhesionMonth+1 ? $now->year : $now->year - 1, $adhesionMonth+1, 1, 0, 0, 0);
+        $endOfSchoolYear = Carbon::create($now->month >= $adhesionMonth ? $now->year + 1 : $now->year, $adhesionMonth, $adhesionDay, 23, 59, 59);
+
+        return !self::where('user_id', $userId)
+            ->whereBetween('payment_subvention', [$startOfSchoolYear, $endOfSchoolYear])
+            ->where('state_id', 3)
+            ->exists();
+    }
+
     public function scopePending($query)
     {
         return $query->where('state_id', 1);

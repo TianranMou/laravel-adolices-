@@ -75,13 +75,13 @@ class Shop extends Model
                 'short_description' => 'required|string',
                 'long_description' => 'required|string',
                 'min_limit' => 'required|integer|min:0',
-                'end_date' => 'required|date',
+                'end_date' => 'nullable|date',
                 'is_active' => 'required|boolean',
-                'thumbnail' => 'nullable|url',
+                'thumbnail' => 'nullable|string',
                 'doc_link' => 'nullable|url',
                 'bc_link' => 'nullable|url',
                 'ha_link' => 'nullable|url',
-                'photo_link' => 'nullable|url'
+                'photo_link' => 'nullable|string',
             ]);
 
             if ($validator->fails()) {

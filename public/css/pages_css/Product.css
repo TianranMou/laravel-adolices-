@@ -1,0 +1,30 @@
+/* Center the submit button */
+button[type="submit"] {
+    display: block;
+    margin: 20px auto; /* Centers the button horizontally */
+}
+
+/* Center the form */
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centers the form elements */
+    width: 100%; /* Full width */
+}
+
+/* Center the form elements */
+input[type="text"],
+input[type="number"],
+input[type="file"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+select,
+form div,
+textarea {
+    width: 100%; /* Full width */
+    max-width: 600px; /* Maximum width */
+    margin: 10px 0; /* Margin for spacing */
+    padding: 10px; /* Padding for input fields */
+    border-radius: 4px; /* Rounded corners */
+}

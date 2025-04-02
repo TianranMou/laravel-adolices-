@@ -104,7 +104,7 @@ class User extends Authenticatable
                 'group_id' => 'required|exists:group,group_id',
                 'last_name' => 'required|string|max:255',
                 'first_name' => 'required|string|max:255',
-                'email' => 'required|email|max:255|unique:users,email' . ($model->exists ? ',' . $model->user_id . ',user_id' : ''),
+                'email' => 'nullable|email|max:255|unique:users,email' . ($model->exists ? ',' . $model->user_id . ',user_id' : ''),
                 'email_imt' => 'nullable|email|max:255|unique:users,email_imt' . ($model->exists ? ',' . $model->user_id . ',user_id' : ''),
                 'password' => $model->exists ? 'nullable|string|min:8' : 'required|string|min:8',
                 'phone_number' => 'nullable|string|max:255',
@@ -158,7 +158,6 @@ class User extends Authenticatable
 
     public function getBoutiquesGerees()
     {
-
         $userId = $this->user_id;
         return Shop::whereHas('administrators', function ($query) use ($userId) {
             $query->where('administrator.user_id', $userId);

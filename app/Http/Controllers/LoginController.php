@@ -18,12 +18,22 @@ class LoginController extends Controller
 
     public function authenticate(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
+        $request->validate([
+            'email' => ['required'], // Removed 'email' validation, as it can be either email or email_imt
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials)) {
+        $email = $request->input('email');
+        $password = $request->input('password');
+
+        // Attempt login with 'email' field
+        if (Auth::attempt(['email' => $email, 'password' => $password])) {
+            $request->session()->regenerate();
+            return redirect()->intended('/');
+        }
+
+        // Attempt login with 'email_imt' field
+        if (Auth::attempt(['email_imt' => $email, 'password' => $password])) {
             $request->session()->regenerate();
             return redirect()->intended('/');
         }

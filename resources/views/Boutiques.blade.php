@@ -1,7 +1,7 @@
 @extends('template')
 
 @section('title')
-    Boutiques
+    Configuration des boutiques
 @endsection
 
 @section('head')
@@ -22,7 +22,7 @@
                 <h3 class="text-center">Liste des Boutiques</h3>
             </div>
             <div class="col-md-6 text-end">
-                <a class="btn btn-primary" id="addBoutique" href="ajouter-produit/">
+                <a class="btn btn-primary" id="addBoutique" href="{{ route('boutiques.create') }}">
                     <i class="fa fa-plus"></i> Ajouter une boutique
                 </a>
             </div>

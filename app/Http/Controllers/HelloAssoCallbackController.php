@@ -2,6 +2,14 @@
 
 namespace App\Http\Controllers;
 
+/**
+ * HelloAssoCallbackController
+ * 
+ * This controller handles callbacks from the HelloAsso payment platform.
+ * It processes order notifications, updates ticket assignments, and manages
+ * low ticket alerts for products.
+ */
+
 use Illuminate\Http\Request;
 use App\Models\Ticket;
 use App\Models\User;
@@ -9,16 +17,28 @@ use App\Models\Site;
 use App\Models\Shop;
 use App\Models\Quota;
 use App\Models\Product;
+use App\Models\Config;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\LowTicketAlert;
 
 class HelloAssoCallbackController extends Controller
 {
+    /** @var string HelloAsso API key */
     private $apiKey;
+    
+    /** @var string HelloAsso API secret */
     private $apiSecret;
+    
+    /** @var string HelloAsso organization slug */
     private $organizationSlug;
 
+    /**
+     * Constructor
+     * Initializes the controller with HelloAsso API credentials from environment variables
+     */
     public function __construct()
     {
         $this->apiKey = env('HELLOASSO_API_KEY');
@@ -26,6 +46,15 @@ class HelloAssoCallbackController extends Controller
         $this->organizationSlug = env('HELLOASSO_ORGANIZATION_SLUG');
     }
 
+    /**
+     * Handle incoming HelloAsso callback
+     * 
+     * Processes order notifications from HelloAsso, validates the request,
+     * and updates ticket assignments for the user.
+     *
+     * @param Request $request The incoming request containing HelloAsso callback data
+     * @return \Illuminate\Http\JsonResponse Response indicating success or failure
+     */
     public function handleCallback(Request $request)
     {
         try {
@@ -117,6 +146,9 @@ class HelloAssoCallbackController extends Controller
                     ]);
                     throw $e;
                 }
+
+                // Check and send low ticket alert for this product
+                $this->checkAndSendLowTicketAlert($item['id']);
             }
 
             return response()->json(['message' => 'Purchase processed successfully']);
@@ -131,7 +163,54 @@ class HelloAssoCallbackController extends Controller
     }
 
     /**
-     * Test the HelloAsso API connection
+     * Check and send low ticket alert
+     * 
+     * Monitors the number of available tickets for a product and sends an email alert
+     * if the count falls below the configured threshold.
+     *
+     * @param int $productId The ID of the product to check
+     */
+    private function checkAndSendLowTicketAlert(int $productId)
+    {
+        // Get the minimum ticket threshold from the config table (id 4)
+        $minTicketThreshold = Config::find(4)->value;
+
+        // Count the number of available tickets for this product
+        $availableTicketsCount = Ticket::where('product_id', $productId)
+            ->whereNull('user_id')
+            ->count();
+
+        // Check if the number of available tickets is below the threshold
+        if ($availableTicketsCount < $minTicketThreshold) {
+            // Get the product name for the email
+            $productName = Product::find($productId)->name;
+
+            // Send an email alert
+            try {
+                Mail::to('adolices@imt-nord-europe.fr')->send(new LowTicketAlert($availableTicketsCount, $minTicketThreshold, $productName));
+                Log::info('Low ticket alert email sent', [
+                    'available_tickets' => $availableTicketsCount,
+                    'threshold' => $minTicketThreshold,
+                    'product_id' => $productId,
+                    'product_name' => $productName,
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Error sending low ticket alert email', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                    'product_id' => $productId,
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Test HelloAsso API connection
+     * 
+     * Verifies the connection to the HelloAsso API by making a test request
+     * to fetch organization forms.
+     *
+     * @return \Illuminate\Http\JsonResponse Response containing connection status
      */
     public function testConnection()
     {
@@ -165,7 +244,13 @@ class HelloAssoCallbackController extends Controller
     }
 
     /**
-     * Test the callback with sample data
+     * Test callback with sample data
+     * 
+     * Creates test data and simulates a HelloAsso callback for testing purposes.
+     * Creates necessary test records (site, shop, quota, product, user, tickets)
+     * and processes them through the handleCallback method.
+     *
+     * @return \Illuminate\Http\JsonResponse Response from handleCallback
      */
     public function testCallback()
     {

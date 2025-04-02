@@ -22,3 +22,22 @@
     margin: 20px auto; /* Centre horizontalement et ajoute un espace vertical */
     padding: 10px 20px; /* Ajoute un peu de padding pour un meilleur rendu */
 }
+
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.alert-success {
+    color: var(--darkGreen);
+    background-color: var(--lightGray);
+    border-color: var(--lightGray);
+}
+
+.alert-danger {
+    color: var(--lightGreen);
+    background-color: var(--red);
+    border-color: var(--lightGray);
+}

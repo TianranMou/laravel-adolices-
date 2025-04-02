@@ -75,10 +75,11 @@ $(document).ready(function () {
         let subsidized_price = $('#subsidized_price').val();
         let price = $('#price').val();
         let dematerialized = $('#dematerialized').is(':checked') ? 1 : 0; // Si la case est cochée, la valeur est 1 (true), sinon 0 (false)
+        let shop_id = $('input[name="shop_id"]').val(); // Valeur hardcodée dans le contrôleur
 
         // Effectuer la requête AJAX pour envoyer les données
         $.ajax({
-            url: "/ajouter-produit",  // Utilise la route définie dans web.php
+            url: "/ajouter-produit/product/" + shop_id ,  // Utilise la route définie dans web.php
             type: "POST",
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -86,7 +87,7 @@ $(document).ready(function () {
             data: {
                 _token: $('meta[name="csrf-token"]').attr('content'),
                 product_name: product_name,
-                shop_id: 1, // Valeur hardcodée dans ton contrôleur
+                shop_id: $('input[name="shop_id"]').val(), // Valeur hardcodée dans ton contrôleur  
                 quota_id: 1, // Valeur hardcodée dans ton contrôleur
                 withdrawal_method: withdrawal_method,
                 price: price,
@@ -107,7 +108,7 @@ $(document).ready(function () {
                         `<button class="btn btn-sm btn-primary edit-product" data-id="${response.product.product_id}">
                             <i class="fa fa-edit"></i>
                         </button>
-                        <button class="btn btn-sm btn-primary gestion-ticket" data-id="{{ $product->product_id }}">
+                        <button class="btn btn-sm btn-primary gestion-ticket" data-id="${ response.product.product_id }">
                             <i class="fa fa-plus"></i>
                         </button>
                         <button class="btn btn-sm btn-danger delete-product" data-id="${response.product.product_id}">
@@ -122,6 +123,7 @@ $(document).ready(function () {
                         let productId = $(this).data('id');
                         window.location.href = `/choisir-type-ticket/${productId}`;
                     });
+
 
                     // Fermer le modal et réinitialiser le formulaire
                     $('#addProductModal').modal('hide');

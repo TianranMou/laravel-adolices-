@@ -31,7 +31,8 @@ class SubventionController extends Controller
         $pdfExists = Storage::disk('public')->exists('documents/reglement_interieur.pdf');
         $last_pending_subvention = Subvention::getLastPendingSubventionForUser($current_user->user_id);
         $previous_subventions = Subvention::getResolvedSubventionsForUser($current_user->user_id);
-        return view('subvention_inquiry', compact('current_user', 'adhesion_valid',  'prev_nom_asso', 'prev_rib', 'prev_montant', 'last_pending_subvention', 'previous_subventions', 'pdfExists'));
+        $sub_available = Subvention::isSubventionAvailable($current_user->user_id);
+        return view('subvention_inquiry', compact('current_user', 'adhesion_valid',  'prev_nom_asso', 'prev_rib', 'prev_montant', 'last_pending_subvention', 'previous_subventions', 'pdfExists', 'sub_available'));
     }
 
     /**

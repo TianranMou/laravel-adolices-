@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId(column: 'group_id')->constrained('group', 'group_id'); //service
             $table->string('last_name');
             $table->string('first_name');
-            $table->string('email')->unique();
+            $table->string('email')->unique()->nullable();
             $table->string('email_imt')->unique()->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');

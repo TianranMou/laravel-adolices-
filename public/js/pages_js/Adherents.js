@@ -1,16 +1,28 @@
+/**
+ * Adherents.js
+ * This file handles the management of adherents (members) in the system.
+ * It provides functionality for displaying, adding, editing, and deleting adherents,
+ * as well as managing their family members.
+ */
+
 $(document).ready(function() {
+    // Set up CSRF token for all AJAX requests
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
 
-    // Function for confirmation (moved to global scope)
+    /**
+     * Global confirmation dialog function
+     * @param {string} message - The message to display in the confirmation dialog
+     * @param {function} callback - The function to execute when user confirms
+     */
     function showConfirmation(message, callback) {
         $('#confirmationMessage').text(message);
         $('#confirmationModal').modal('show');
 
-        // Remove any existing click handlers
+        // Remove any existing click handlers to prevent multiple bindings
         $('#confirmDelete').off('click');
 
         // Add new click handler
@@ -20,7 +32,10 @@ $(document).ready(function() {
         });
     }
 
-    // Initialize DataTable
+    /**
+     * Initialize DataTable with French localization and custom settings
+     * The table displays adherent information with sorting, searching, and pagination capabilities
+     */
     const table = $('#adherentsTable').DataTable({
         language: {
             "emptyTable": "Aucune donnée disponible dans le tableau",
@@ -68,7 +83,10 @@ $(document).ready(function() {
         }
     });
 
-    // Filter adherents checkbox handler
+    /**
+     * Filter handler for showing only active adherents
+     * When checkbox is checked, only shows rows where adhesion status is 'Oui'
+     */
     $('#showAdherentsOnly').change(function() {
         const showOnlyAdherents = $(this).is(':checked');
 
@@ -82,7 +100,11 @@ $(document).ready(function() {
         $.fn.dataTable.ext.search.pop();
     });
 
-    // School year change handler
+    /**
+     * School year change handler
+     * Fetches and displays adherents based on the selected school year
+     * Updates the table with filtered data from the server
+     */
     $('#schoolYear').change(function() {
         const year = $(this).val().split('-')[0];
 
@@ -203,8 +225,15 @@ $(document).ready(function() {
         });
     });
 
+    /**
+     * Attaches event handlers to dynamically created elements
+     * This function is called after table redraws and when new elements are added
+     */
     function attachEventHandlers() {
-        // Edit adherent button handler - using event delegation
+        /**
+         * Edit adherent button handler
+         * Fetches adherent data and populates the edit form
+         */
         $(document).off('click', '.edit-adherent').on('click', '.edit-adherent', function() {
             const userId = $(this).data('id');
 
@@ -301,7 +330,10 @@ $(document).ready(function() {
             });
         });
 
-        // Delete handler - using event delegation
+        /**
+         * Delete adherent button handler
+         * Shows confirmation dialog and deletes the adherent if confirmed
+         */
         $(document).off('click', '.delete-adherent').on('click', '.delete-adherent', function() {
             const userId = $(this).data('id');
             const adherentName = $(this).closest('tr').find('td:first').text() + ' ' + $(this).closest('tr').find('td:nth-child(2)').text();
@@ -344,14 +376,21 @@ $(document).ready(function() {
     // Initial attachment of event handlers
     attachEventHandlers();
 
-    // Add adherent button handler
+    /**
+     * Add new adherent button handler
+     * Resets the form and shows the modal for adding a new adherent
+     */
     $('#addAdherent').click(function() {
         $('#adherentForm')[0].reset();
         $('#userId').val('');
         $('#adherentModal').modal('show');
     });
 
-    // Save adherent handler
+    /**
+     * Save adherent handler
+     * Collects form data and sends it to the server to create/update an adherent
+     * Handles both creation of new adherents and updates to existing ones
+     */
     $('#saveAdherent').click(function() {
         const formData = {
             last_name: $('#lastName').val(),
@@ -428,7 +467,10 @@ $(document).ready(function() {
         });
     });
 
-    // Add family member button handler
+    /**
+     * Add family member button handler
+     * Adds a new family member form section to the adherent form
+     */
     $('#addFamilyMember').click(function() {
         const memberId = Date.now(); // Unique ID for the new member
         const memberHtml = `
@@ -469,7 +511,10 @@ $(document).ready(function() {
         $('#familyMembersContainer').append(memberHtml);
     });
 
-    // Remove family member handler
+    /**
+     * Remove family member handler
+     * Removes a family member from the form and from the database if editing existing adherent
+     */
     $(document).on('click', '.remove-family-member', function() {
         const memberElement = $(this).closest('.family-member');
         const memberId = memberElement.data('member-id');
@@ -500,6 +545,12 @@ $(document).ready(function() {
         }
     });
 
+    /**
+     * Toast notification function
+     * Displays success or error messages to the user
+     * @param {string} message - The message to display
+     * @param {string} type - The type of notification ('success' or 'error')
+     */
     function showToast(message, type = 'success') {
         const toast = $('#toast');
         const toastBody = toast.find('.toast-body');

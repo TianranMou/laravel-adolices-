@@ -35,10 +35,10 @@ h3 {
 }
 
 .disabled-input {
-    background-color: #f0f0f0;
-    color: #777;
+    background-color: var(--lightGray);
+    color: var(--darkGray)
     cursor: not-allowed;
-    border: 1px solid #ccc;
+    border: 1px solid var(--lightGray);
 }
 
 /* grey out the fields and change the cursor for last resolved subvention*/
@@ -52,8 +52,8 @@ h3 {
 }
 
 .resolved-subvention-info input[readonly] {
-    background-color: #f0f0f0;
-    color: #777;
+    background-color: var(--lightGray);
+    color: var(--darkGray);
     cursor: not-allowed;
-    border: 1px solid #ccc;
+    border: 1px solid var(--lightGray);
 }
