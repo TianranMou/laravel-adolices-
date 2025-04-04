@@ -33,32 +33,38 @@ class Ticket extends Model
         'purchase_date' => 'date'
     ];
 
-    public function produit(): BelongsTo
+        public function produit(): BelongsTo
     {
         return $this->belongsTo(Product::class, 'product_id', 'product_id');
     }
 
-    public function user(): BelongsTo
+        public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
 
-    public function site(): BelongsTo
+        public function site(): BelongsTo
     {
         return $this->belongsTo(Site::class, 'site_id', 'site_id');
     }
 
-    public function scopeDematerialized($query)
+        public function scopeDematerialized($query)
     {
         return $query->join('product', 'ticket.product_id', '=', 'product.product_id')
                      ->where('product.dematerialized', true)
                      ->select('ticket.*');
     }
 
+    /**
+     * Get all dematerialized tickets, optionally filtered by user ID.
+     *
+     * @param int|null $user_id
+     * @return \Illuminate\Support\Collection
+     */
     public static function getDematerializedTickets($user_id = null)
     {
         $query = static::dematerialized()->with(['produit', 'site', 'user']);
-        
+
         if ($user_id) {
             $query->where('ticket.user_id', $user_id);
         }
@@ -66,6 +72,12 @@ class Ticket extends Model
         return $query->get();
     }
 
+    /**
+     * Get a specific dematerialized ticket by its ID.
+     *
+     * @param int $ticket_id
+     * @return \App\Models\Ticket|null
+     */
     public static function getDematerializedTicketById($ticket_id)
     {
         return static::dematerialized()
@@ -74,21 +86,46 @@ class Ticket extends Model
                      ->first();
     }
 
+    /**
+     * Get all tickets for a specific user by their ID.
+     *
+     * @param int $user_id
+     * @return \Illuminate\Support\Collection
+     */
     public static function getTicketByUserId($user_id)
     {
         return static::where('user_id', $user_id)->get();
     }
 
+    /**
+     * Get all tickets with their related models.
+     *
+     * @return \Illuminate\Support\Collection
+     */
     public static function getAllTicketsWithRelations()
     {
         return static::with(['produit', 'user', 'site'])->get();
     }
 
+    /**
+     * Find a specific ticket with its related models by its ID.
+     *
+     * @param int $ticket_id
+     * @return \App\Models\Ticket|null
+     */
     public static function findTicketWithRelations($ticket_id)
     {
         return static::with(['produit', 'user', 'site'])->find($ticket_id);
     }
 
+    /**
+     * Create a new ticket with the given data.
+     *
+     * @param array $data
+     * @return \App\Models\Ticket
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public static function createTicket(array $data)
     {
         $validator = Validator::make($data, [
@@ -97,7 +134,7 @@ class Ticket extends Model
             'site_id' => 'required|exists:site,site_id',
             'ticket_link' => 'required|string|max:255',
             'partner_code' => 'required|string|max:255',
-            'partner_id' => 'required|string|max:255', 
+            'partner_id' => 'required|string|max:255',
             'validity_date' => 'required|date',
             'purchase_date' => 'required|date',
         ]);
@@ -109,6 +146,14 @@ class Ticket extends Model
         return static::create($data);
     }
 
+    /**
+     * Update the current ticket with the given data.
+     *
+     * @param array $data
+     * @return bool
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function updateTicket(array $data)
     {
         $validator = Validator::make($data, [
@@ -117,7 +162,7 @@ class Ticket extends Model
             'site_id' => 'required|exists:site,site_id',
             'ticket_link' => 'required|string|max:255',
             'partner_code' => 'required|string|max:255',
-            'partner_id' => 'required|string|max:255', 
+            'partner_id' => 'required|string|max:255',
             'validity_date' => 'required|date',
             'purchase_date' => 'required|date',
         ]);
@@ -156,6 +201,12 @@ class Ticket extends Model
                      ->count();
     }
 
+    /**
+     * Get aggregated tickets for a specific user.
+     *
+     * @param int $user_id
+     * @return \Illuminate\Support\Collection
+     */
     public static function getAggregatedTicketsForUser(int $user_id): Collection
     {
         $tickets = static::where('user_id', $user_id)
@@ -166,6 +217,12 @@ class Ticket extends Model
         return self::aggregateTicketsByProduct($tickets);
     }
 
+    /**
+     * Aggregate tickets by product.
+     *
+     * @param \Illuminate\Support\Collection $tickets
+     * @return \Illuminate\Support\Collection
+     */
     private static function aggregateTicketsByProduct(Collection $tickets): Collection
     {
         return $tickets->groupBy('product_id')->map(function ($productTickets) {
@@ -194,3 +251,4 @@ class Ticket extends Model
     }
 
 }
+

@@ -8,7 +8,6 @@ class ErrorPageController extends Controller
 {
     public function showError($errorId = '404')
     {
-        // En fonction de l'ID d'erreur, tu peux définir un message spécifique
         $errorMessages = [
             '400' => "Requête invalide. Veuillez vérifier votre demande.",
             '401' => "Non autorisé. Veuillez vous authentifier.",
@@ -24,10 +23,8 @@ class ErrorPageController extends Controller
             'default' => "Une erreur est survenue. Veuillez réessayer plus tard."
         ];
 
-        // Si l'ID d'erreur n'est pas défini, on prend 'default'
         $errorMessage = $errorMessages[$errorId] ?? $errorMessages['404'];
 
-        // Passer la variable d'erreur à la vue
         return view('error', compact('errorId','errorMessage'));
     }
 }

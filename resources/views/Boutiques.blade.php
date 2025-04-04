@@ -91,7 +91,7 @@
                         </td>
                         <td>
                             @if($BoutiquesGeredByUser->contains($boutique->shop_id)||env('APP_DEBUG'))
-                                <a href="{{ "ajouter-produit/".$boutique->shop_id }}" class="btn btn-primary editBoutique" data-id="{{ $boutique->shop_id }}">
+                                <a href="{{ "edit-boutique/".$boutique->shop_id }}" class="btn btn-primary editBoutique" data-id="{{ $boutique->shop_id }}">
                                     <i class="fa fa-edit"></i>
                                 </a>
                             @endif

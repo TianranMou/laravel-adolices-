@@ -79,7 +79,6 @@ class CommuniquerController extends Controller
 
             $request->session()->put('communicationData', $communicationData);
 
-            // Pour la prévisualisation, on utilise un tableau de destinataires plus simple
             $recipients = $validated['email_addresses'] ?? [];
 
             return view('emailPreview', [
@@ -114,9 +113,7 @@ class CommuniquerController extends Controller
             if (!empty($communicationData['email_addresses'])) {
                 foreach ($communicationData['email_addresses'] as $email) {
                     try {
-                        // Here you would actually send the email
                         // Mail::to($email)->send(new \App\Mail\CommunicationMail($communicationData));
-                        Log::info("Email envoyé à {$email}");
                         $successCount++;
                     } catch (\Exception $e) {
                         Log::error("Erreur d'envoi d'email à {$email}: " . $e->getMessage());

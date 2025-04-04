@@ -8,6 +8,11 @@ use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
+    /**
+     * Display the login page.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index()
     {
         if (Auth::check()) {
@@ -16,6 +21,14 @@ class LoginController extends Controller
         return view('login');
     }
 
+    /**
+     * Handle an authentication attempt.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function authenticate(Request $request)
     {
         $request->validate([
@@ -26,13 +39,11 @@ class LoginController extends Controller
         $email = $request->input('email');
         $password = $request->input('password');
 
-        // Attempt login with 'email' field
         if (Auth::attempt(['email' => $email, 'password' => $password])) {
             $request->session()->regenerate();
             return redirect()->intended('/');
         }
 
-        // Attempt login with 'email_imt' field
         if (Auth::attempt(['email_imt' => $email, 'password' => $password])) {
             $request->session()->regenerate();
             return redirect()->intended('/');
@@ -43,6 +54,12 @@ class LoginController extends Controller
         ]);
     }
 
+    /**
+     * Log the user out of the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function logout(Request $request)
     {
         Auth::logout();

@@ -93,6 +93,46 @@ class ProductController extends Controller
         return response()->json(['success' => true, 'product' => $product]);
     }
 
+    public function updateProduct(Request $request, $shop_id)
+    {
+        $product_id = $request->input('product_id'); // Récupérer l'ID du produit depuis les données envoyées
+
+        $product = Product::where('shop_id', $shop_id)->findOrFail($product_id);
+
+        $product->update([
+            'product_name' => $request->input('product_name'),
+            'withdrawal_method' => $request->input('withdrawal_method'),
+            'subsidized_price' => $request->input('subsidized_price'),
+            'price' => $request->input('price'),
+            'dematerialized' => $request->input('dematerialized'),
+            'quota_id' => $request->input('quota_id')
+        ]);
+
+        // Calculer le nombre de tickets associés à ce produit après la mise à jour
+        $nbTickets = $product->tickets()->count();
+
+        // Ajouter le nombre de tickets à la réponse
+        $product->nbTickets = $nbTickets;
+
+
+        return response()->json([
+            'success' => true,
+            'product' => $product
+        ]);
+    }
+
+    public function deleteProduct($product_id)
+    {
+        $product = Product::find($product_id);
+
+        if ($product) {
+            $product->delete();  // Supprimer le produit
+            return response()->json(['success' => true]);
+        }
+
+        return response()->json(['success' => false], 400);  // Si le produit n'existe pas
+    }
+
     /**
      * Retrieve a product by its ID.
      *
@@ -116,18 +156,18 @@ class ProductController extends Controller
      *
      * @param \Illuminate\Http\Request $request The incoming request.
      * @param int $shop_id The ID of the shop to update.
-     * @return \Illuminate\Http\RedirectResponse Redirects to the shop page with a success message.
+     * @return \Illuminate\Http\JsonResponse A JSON response with success status and message.
      */
     public function update(Request $request, $shop_id)
     {
         // Validate the incoming data
-        $request->validate([
+        $validated = $request->validate([
             'shop_name' => 'required|string|max:250',
             'short_description' => 'required|string',
             'long_description' => 'required|string',
-            'min_limit' => 'nullable',
+            'min_limit' => 'nullable|numeric',
             'end_date' => 'nullable|date',
-            'is_active' => 'required|boolean',
+            'is_active' => 'sometimes|boolean',
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'doc_link' => 'nullable|url',
             'bc_link' => 'nullable|url',
@@ -135,36 +175,61 @@ class ProductController extends Controller
             'photo_link' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
 
-        // Find the shop by its ID
-        $boutique = \App\Models\Shop::findOrFail($shop_id);
+        try {
+            // Find the shop by its ID
+            $boutique = \App\Models\Shop::findOrFail($shop_id);
 
-        // Update the shop details
-        $boutique->shop_name = $request->shop_name;
-        $boutique->short_description = $request->short_description;
-        $boutique->long_description = $request->long_description;
+            // Update the shop details with validated data
+            $boutique->shop_name = $validated['shop_name'];
+            $boutique->short_description = $validated['short_description'];
+            $boutique->long_description = $validated['long_description'];
 
-        // Handle image uploads if provided
-        if ($request->hasFile('photo_link')) {
-            if ($boutique->photo_link) {
-                Storage::delete('public/'.$boutique->photo_link);
+            // Utiliser array_key_exists pour vérifier si le champ est présent dans les données validées
+            // même s'il a une valeur null
+            if (array_key_exists('min_limit', $validated)) {
+                $boutique->min_limit = $validated['min_limit'];
             }
-            $photoPath = $request->file('photo_link')->store('photos', 'public');
-            $boutique->photo_link = $photoPath;
-        }
 
-        if ($request->hasFile('thumbnail')) {
-            if ($boutique->thumbnail) {
-                Storage::delete('public/' . $boutique->thumbnail);
+            if (array_key_exists('end_date', $validated)) {
+                $boutique->end_date = $validated['end_date'];
             }
-            $thumbnailPath = $request->file('thumbnail')->store('thumbnails', 'public');
-            $boutique->thumbnail = $thumbnailPath;
+
+            $boutique->is_active = $request->boolean('is_active');
+
+            if (array_key_exists('doc_link', $validated)) {
+                $boutique->doc_link = $validated['doc_link'];
+            }
+
+            if (array_key_exists('bc_link', $validated)) {
+                $boutique->bc_link = $validated['bc_link'];
+            }
+
+            if (array_key_exists('ha_link', $validated)) {
+                $boutique->ha_link = $validated['ha_link'];
+            }
+
+            // Handle image uploads if provided
+            if ($request->hasFile('photo_link')) {
+                if ($boutique->photo_link) {
+                    Storage::delete('public/'.$boutique->photo_link);
+                }
+                $photoPath = $request->file('photo_link')->store('photos', 'public');
+                $boutique->photo_link = $photoPath;
+            }
+
+            if ($request->hasFile('thumbnail')) {
+                if ($boutique->thumbnail) {
+                    Storage::delete('public/' . $boutique->thumbnail);
+                }
+                $thumbnailPath = $request->file('thumbnail')->store('thumbnails', 'public');
+                $boutique->thumbnail = $thumbnailPath;
+            }
+
+            $boutique->save();
+            return redirect()->route('produit.create', ['shop_id' => $shop_id])->with('success', 'La boutique a été mise à jour avec succès !');
+        } catch (\Exception $e) {
+            return redirect()->route('produit.create', ['shop_id' => $shop_id])->with('fail', 'Echec de la mise à jour de la boutique !');
         }
-
-        // Save the updated shop details
-        $boutique->save();
-
-        // Redirect to the shop page with a success message
-        return redirect()->route('produit.create', ['shop_id' => $shop_id])->with('success', 'La boutique a été mise à jour avec succès!');
     }
 
     /**

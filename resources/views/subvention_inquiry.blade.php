@@ -63,7 +63,7 @@
                     </button>
                     @if(isset($sub_available) && !$sub_available)
                         <div class="alert alert-info mt-2">
-                            <small>Vous avez déjà reçu une subvention pour cette année. Vous ne pouvez pas soumettre une nouvelle demande.</small>
+                            <small>Vous avez déjà reçu une subvention pour cette année.</small>
                         </div>
                     @endif
                 </div>

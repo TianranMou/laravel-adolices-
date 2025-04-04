@@ -32,68 +32,6 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\BoutiquesPageController;
 
-if(env("APP_DEBUG")){
-    Route::get('/test',function(){
-        return view('templateMail.templateMail');
-    });
-}
-
-// Endpoint pour récupérer le jeton CSRF (uniquement pour les tests)
-Route::get('/csrf', function() {
-    return response()->json(['csrf_token' => csrf_token()]);
-});
-
-Route::prefix('ajouter-produit')->middleware('auth')->group(function(){
-    //Boutique update
-    Route::post('/update/{shop_id}', [ProductController::class, 'update'])->name('boutiques.update');
-
-
-    //Ajouter un produit
-    Route::get('/{shop_id}', [ProductController::class, 'create'])->name('produit.create');
-    Route::post('/product/{shop_id}', [ProductController::class, 'store'])->name('produits.store');
-
-
-});
-
-//Route::put('/ajouter-produit/{shop_id}', [ProductController::class, 'update'])->name('produits.update');
-
-
- //create Boutique
- Route::get('/add_boutique', [ProductController::class, 'createBoutique'])->name('boutiques.create');
-
-//Nb de ticket par produit
-Route::get('/tickets/product/{product_id}', [TicketController::class, 'showTicket'])->name('tickets.show');
-Route::get('/get-product/{product_id}', [ProductController::class, 'getProduct']);
-
-//Redirection choix tickets
-Route::get('/choisir-type-ticket/{product_id}', function ($product_id) {
-    return view('choisir-type-ticket', compact('product_id'));
-})->name('tickets.choose');
-
-Route::get('/redirect-ticket', function (Illuminate\Http\Request $request) {
-    $product_id = $request->query('product_id');
-    $ticket_type = $request->query('ticket_type');
-    if ($ticket_type == 'majestic') {
-        return redirect()->route('tickets.majestic', ['product_id' => $product_id]);
-    } else {
-        return redirect()->route('tickets.standard', ['product_id' => $product_id]);
-    }
-})->name('tickets.redirect');
-
-//Parser
-Route::get('/parsepdf', [PdfController::class, 'parsePdf']);
-
-//Upload ticket Majestic
-Route::get('/ajouter-ticket-majestic/{product_id}', [TicketController::class, 'create'])->name('tickets.majestic');
-Route::post('/ajouter-ticket-majestic/{product_id}', [TicketController::class, 'uploadTickets']);
-
-//shop
-Route::get('/shop/{id}', [ShopController::class, 'show'])->name('shop.show');
-Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
-Route::post('/helloasso/callback', [HelloAssoCallbackController::class, 'handleCallback'])->name('helloasso.callback');
-Route::get('/helloasso/test', [HelloAssoCallbackController::class, 'testConnection'])->name('helloasso.test');
-Route::get('/helloasso/test-callback', [HelloAssoCallbackController::class, 'testCallback'])->name('helloasso.test-callback');
-Route::post('/shops/{shop_id}/gestionnaires', [ProductController::class, 'manageGestionnaires'])->name('shops.gestionnaires');
 
 /**
  * Connection routes
@@ -131,13 +69,6 @@ Route::prefix('reglement-interieur')->group(function () {
 // Bureau
 Route::get('/bureau', [BureauPageController::class, 'index'])->name('bureau');
 
-//shop
-Route::get('/shop/{id}', [ShopController::class, 'show'])->name('shop.show');
-Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
-Route::post('/helloasso/callback', [HelloAssoCallbackController::class, 'handleCallback'])->name('helloasso.callback');
-Route::get('/helloasso/test', [HelloAssoCallbackController::class, 'testConnection'])->name('helloasso.test');
-Route::get('/helloasso/test-callback', [HelloAssoCallbackController::class, 'testCallback'])->name('helloasso.test-callback');
-
 // Profile page
 Route::prefix('profile')->middleware('auth')->group(function(){
     Route::get('/', [ProfileController::class, 'index'])->name('profile');
@@ -164,6 +95,7 @@ Route::get('/api/rocket-chat/search-users', [RocketChatController::class, 'searc
 Route::get('/rocket-chat-test', function() {
     return view('rocket-chat-test');
 });
+
 
 /**
  * Routes that require authentification
@@ -204,6 +136,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/shop/{shopId}', [ContactController::class, 'getShopAdministrators'])->name('contact.shop-administrators');
         Route::get('/all-administrators', [ContactController::class, 'getAllAdministrators']);
     });
+
+    Route::get('/shop/{id}', [ShopController::class, 'show'])->name('shop.show');
+    Route::post('/shop/purchase-ticket/{product_id}', [ShopController::class, 'purchaseTicket'])->name('shop.purchase-ticket');
 });
 
 /**
@@ -254,34 +189,57 @@ Route::middleware(['auth', 'admin'])->group(function () {
     });
 
     Route::get('/boutiques' , [BoutiquesPageController::class, 'index'])->name('boutiques');
+
+    Route::prefix('edit-boutique')->group(function(){
+        //Boutique update
+        Route::post('/update/{shop_id}', [ProductController::class, 'update'])->name('boutiques.update');
+        //Ajouter un produit
+        Route::get('/{shop_id}', [ProductController::class, 'create'])->name('produit.create');
+        Route::post('/product/{shop_id}', [ProductController::class, 'store'])->name('produits.store');
+    });
+
+    //Modifier un produit
+    Route::post('/produit-update/{shop_id}', [ProductController::class, 'updateProduct'])->name('produit.update');
+
+    //Supprimer un produit
+    Route::delete('/produit-delete/{shop_id}', [ProductController::class, 'deleteProduct'])->name('produit.delete');
+
+    //create Boutique
+    Route::get('/add_boutique', [ProductController::class, 'createBoutique'])->name('boutiques.create');
+
+    //Nb de ticket par produit
+    Route::get('/tickets/product/{product_id}', [TicketController::class, 'showTicket'])->name('tickets.show');
+    Route::get('/get-product/{product_id}', [ProductController::class, 'getProduct']);
+
+    //Redirection choix tickets
+    Route::get('/choisir-type-ticket/{product_id}', function ($product_id) {
+        return view('choisir-type-ticket', compact('product_id'));
+    })->name('tickets.choose');
+
+    Route::get('/redirect-ticket', function (Illuminate\Http\Request $request) {
+        $product_id = $request->query('product_id');
+        $ticket_type = $request->query('ticket_type');
+        if ($ticket_type == 'majestic') {
+            return redirect()->route('tickets.majestic', ['product_id' => $product_id]);
+        } else {
+            return redirect()->route('tickets.standard', ['product_id' => $product_id]);
+        }
+    })->name('tickets.redirect');
+
+    //Uploader ticket
+    Route::get('/ajouter-ticket/{product_id}', [TicketController::class, 'create'])->name('tickets.majestic');
+    Route::post('/ajouter-ticket/{product_id}', [TicketController::class, 'uploadTickets'])->name('tickets.upload');
+
+    Route::post('/shops/{shop_id}/gestionnaires', [ProductController::class, 'manageGestionnaires'])->name('shops.gestionnaires');
 });
 
 
 
-
-
-
-
-
-// éléments à trier/clean
-
-//Route::get('/tickets', [TicketController::class, 'tickets']);
-
-Route::resource('tickets', TicketController::class);
-//pour test
-// Route::prefix('dematerialized-tickets')->group(function () {
-//     Route::get('/', [DematerializedTicketController::class, 'getAll'])->name('dematerialized-tickets.getAll');
-//     Route::get('/{id}', [DematerializedTicketController::class, 'getById'])->name('dematerialized-tickets.getById');
-//     Route::put('/{id}', [DematerializedTicketController::class, 'updateId'])->name('dematerialized-tickets.updateId');
-// });
-
-//need view to be added
-Route::prefix('dematerialized-tickets')->name('dematerialized-tickets.')->group(function () {
-    Route::get('/', [DematerializedTicketController::class, 'index'])->name('index');
-    Route::get('/{id}', [DematerializedTicketController::class, 'show'])->name('show');
-    Route::get('/{id}/edit', [DematerializedTicketController::class, 'edit'])->name('edit');
-    Route::put('/{id}', [DematerializedTicketController::class, 'update'])->name('update');
-});
-
-//Accueil
-Route::get('/', [AccueilPageController::class, 'index'])->name('accueil');
+/**
+ * Test implémentation de HelloAsso
+ */
+//shop
+Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
+Route::post('/helloasso/callback', [HelloAssoCallbackController::class, 'handleCallback'])->name('helloasso.callback');
+Route::get('/helloasso/test', [HelloAssoCallbackController::class, 'testConnection'])->name('helloasso.test');
+Route::get('/helloasso/test-callback', [HelloAssoCallbackController::class, 'testCallback'])->name('helloasso.test-callback');

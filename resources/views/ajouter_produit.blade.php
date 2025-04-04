@@ -31,20 +31,9 @@
 
 
 @section('content')
-
-
-
-    <!-- Bouton pour ouvrir le modal -->
-
-    <!--<button class="btn btn-primary" id="addProductBtn">
-        <i class="fa fa-plus"></i> Ajouter un produit
-    </button>
-    -->
-
-
     <!-- Formulaire pour modifier la boutique -->
     <div class="container mt-4">
-        <form action="{{ url('ajouter-produit/update/' . $shop_id) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ url('edit-boutique/update/' . $shop_id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="md-6">
                 <div class="mb-3">
@@ -74,7 +63,7 @@
                 <div class="mb-3">
                     <label for="end_date" class="form-label">Date de fin</label>
                     <input type="date" class="form-control" id="end_date" name="end_date" value="{{ old('end_date', $boutique->end_date) }}">
-                    <small class="form-text text-muted">Laissez vide si la boutique est permanante.</small>
+                    <small class="form-text text-muted">Laissez vide si la boutique est permanente.</small>
                 </div>
                 <div class="mb-3">
                     <label for="photo_link" class="form-label">Photo</label>
@@ -140,8 +129,8 @@
                         <div class="mb-3">
                             <label for="withdrawal_method" class="form-label">Méthode de retrait</label>
                             <select class="form-control" id="withdrawal_method" name="withdrawal_method" required>
-                                <option value="pickup">Pickup</option>
-                                <option value="delivery">Delivery</option>
+                                <option value="pickup">Retirer</option>
+                                <option value="delivery">Livraison</option>
                                 <option value="digital">Digital</option>
                             </select>
                         </div>
@@ -158,14 +147,61 @@
                             <input type="checkbox" class="form-check-input" id="dematerialized" name="dematerialized" value="1">
                         </div>
                         <!-- Les champs shop_id et quota_id sont hardcodés dans le contrôleur -->
-                        <!-- Si tu veux les inclure dans le formulaire, tu peux les ajouter, mais ils sont fixés à 1 dans ton contrôleur -->
                         <input type="hidden" name="shop_id" value="{{ $shop_id }}">
-                        <input type="hidden" name="quota_id" value="1">
+                        <input type="hidden" name="quota_id" value="1"><!-- Remplacez par la valeur réelle de quota_id -->
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
                     <button type="submit" class="btn btn-primary" id="saveProduct">Ajouter</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de modification de produit -->
+    <div class="modal fade" id="editProductModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="editProductModal">Modifier un produit</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editProductForm" action="{{ route('produit.update', ['shop_id' => $shop_id]) }}" method="POST">
+                        @csrf
+                        <input type="hidden" id="edit_product_id" name="product_id"> <!-- Champ caché pour stocker l'ID -->
+                        <div class="mb-3">
+                            <label for="edit_product_name" class="form-label">Nom du produit</label>
+                            <input type="text" class="form-control" id="edit_product_name" name="product_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_withdrawal_method" class="form-label">Méthode de retrait</label>
+                            <select class="form-control" id="edit_withdrawal_method" name="withdrawal_method" required>
+                                <option value="pickup">Retirer</option>
+                                <option value="delivery">Livraison</option>
+                                <option value="digital">Digital</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_subsidized_price" class="form-label">Prix subventionné</label>
+                            <input type="number" class="form-control" id="edit_subsidized_price" name="subsidized_price" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_price" class="form-label">Prix</label>
+                            <input type="number" class="form-control" id="edit_price" name="price" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_dematerialized" class="form-label">Produit dématérialisé</label>
+                            <input type="checkbox" class="form-check-input" id="edit_dematerialized" name="dematerialized" value="1">
+                        </div>
+                        <input type="hidden" name="shop_id" value="{{ $shop_id }}">
+                        <input type="hidden" name="edit_quota_id" value="1">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary" id="updateProduct">Modifier</button>
                 </div>
             </div>
         </div>
@@ -189,11 +225,19 @@
         <tbody>
             @foreach($products as $product)
                 <tr>
-                    <!-- <td>{{ $product->product_id }}</td> -->
                     <td>{{ $product->product_name }}</td>
                     <td>{{ $product->subsidized_price }}</td>
                     <td>{{ $product->price }}</td>
-                    <td>{{ $product->withdrawal_method }}</td>
+                    <td>
+                        @if ($product->withdrawal_method == 'pickup')
+                            Retirer
+                        @elseif ($product->withdrawal_method == 'delivery')
+                            Livraison
+                        @elseif ($product->withdrawal_method == 'digital')
+                            Digital
+                        @endif
+                    </td>
+
                     <td>{{ $product->dematerialized === true ? 'dématérialisé' : 'physique'  }}</td>
                     <td>{{ $product->nbTickets }}</td>
                     <td>
@@ -207,7 +251,7 @@
                             $(document).ready(function () {
                                 $('.gestion-ticket').click(function () {
                                     let productId = $(this).data('id');
-                                    window.location.href = `/choisir-type-ticket/${productId}`;
+                                    window.location.href = `/ajouter-ticket/${productId}`;
                                 });
                             });
                         </script>

@@ -9,7 +9,7 @@
         "Bureau"=>route('bureau'),
     ];
     $nonAdherentsPages=[
-        "Mon Adhésion"=> route('adhesion'),
+        "Mon adhésion"=> route('adhesion'),
     ];
     $userPages=[
         "Mes achats"=>route('achats'),

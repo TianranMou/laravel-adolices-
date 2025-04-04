@@ -42,7 +42,7 @@ class Shop extends Model
         return $this->hasMany(Product::class, 'shop_id', 'shop_id');
     }
 
-    public static function getAllAvalableShops()
+    public static function getAllAvailableShops()
     {
         return self::where('is_active', true)
                     ->where(function ($query) {

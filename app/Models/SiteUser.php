@@ -50,6 +50,10 @@ class SiteUser extends Model
         });
     }
 
+    /**
+     * Creates the site_user pivot table for the many-to-many relationship between users and sites.
+     * @return void
+     */
     public static function createTable()
     {
         Schema::create('site_user', function (Blueprint $table) {

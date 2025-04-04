@@ -19,7 +19,7 @@ class BureauPageController extends Controller
      */
     public function index()
     {
-        // Define the board members as an associative array
+        // Modifier le code ou mettre dans la config
         $bureau_data = [
             [
                 'name' => 'Jean Dupont',
@@ -48,7 +48,6 @@ class BureauPageController extends Controller
             ]
         ];
 
-        // Retrieve the currently authenticated user
         $current_user = Auth::user();
 
         // Determine if the user's adhesion is valid
@@ -58,7 +57,6 @@ class BureauPageController extends Controller
             $adhesion_valid = $current_user ? $current_user->hasUpToDateAdhesion() : false;
         }
 
-        // Pass the data to the view
         return view('Bureau', compact('bureau_data', 'adhesion_valid', 'current_user'));
     }
 }

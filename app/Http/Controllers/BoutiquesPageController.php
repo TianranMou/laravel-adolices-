@@ -19,16 +19,12 @@ class BoutiquesPageController extends Controller
      */
     public function index()
     {
-        // Retrieve all boutiques
         $boutiques = Shop::all();
 
-        // Get the currently authenticated user
         $currrentUser = auth()->user();
 
-        // Retrieve the boutiques managed by the current user
         $BoutiquesGeredByUser = $currrentUser->getBoutiquesGerees();
 
-        // Return the boutiques view with the required data
         return view('Boutiques', compact('boutiques', 'BoutiquesGeredByUser'));
     }
 }

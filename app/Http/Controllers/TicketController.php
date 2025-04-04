@@ -22,6 +22,9 @@ class TicketController extends Controller
         ], 200);
     }
 
+    /**
+     * Crée un nouveau ticket et renvoie les données en JSON.
+     */
     public function store(Request $request)
     {
         try {
@@ -39,6 +42,9 @@ class TicketController extends Controller
         }
     }
 
+    /**
+     * Affiche un ticket spécifique avec ses relations.
+     */
     public function show(Ticket $ticket)
     {
         $ticket = Ticket::findTicketWithRelations($ticket->ticket_id);
@@ -48,6 +54,9 @@ class TicketController extends Controller
         ], 200);
     }
 
+    /**
+     * Met à jour un ticket existant.
+     */
     public function update(Request $request, Ticket $ticket)
     {
         try {
@@ -65,6 +74,9 @@ class TicketController extends Controller
         }
     }
 
+    /**
+     * Supprime un ticket.
+     */
     public function destroy(Ticket $ticket)
     {
         $ticket->delete();
@@ -74,46 +86,50 @@ class TicketController extends Controller
         ], 204);
     }
 
+    /**
+     * Affiche la vue pour ajouter un ticket à un produit donné.
+     */
     public function create($product_id){
-        // Vérifie si le produit "Ticket Cine Majestic" existe déjà
+        // Vérifie si le produit "Ticket Cine Majestic" existe déjà et le créé sinon
         $product = Product::firstOrCreate([
             'product_name' => 'Ticket Cine Majestic',
-            'shop_id'=>1,// à modifier
-            'quota_id'=>1,
+            'shop_id'=>1, // amodifier car acheteur, mettre nullable dans la BDD et ajouter lorsque le ticket est acheter
+            'quota_id'=>1, //a modifier en fonction du site voulu (éventuellement un select)
             'withdrawal_method'=>'pickup',
             'subsidized_price' => 0,
             'dematerialized' => 0,
-            'price' => 0] // Ajuste selon ton besoin
+            'price' => 0] 
         );
-
-        // Sauvegarder l'ID du produit dans la session
         session(['product_id' => $product->product_id]);
 
-        //$tickets = Ticket::where('product_id', $product->id)->latest()->take(10)->get();
-        return view('ajouter_ticket_majestic', compact('product_id'));
+        return view('ajouter_ticket', compact('product_id'));
     }
 
-
+    /**
+     * Télécharge et stocke plusieurs tickets PDF tout en les analysant.
+     */
     public function uploadTickets(Request $request, PdfParserService $pdfParser, $product_id)
     {
 
         $request->validate([
             'tickets.*' => 'required|mimes:pdf|max:2048',
         ]);
-
-
         $uploadedTickets = [];
-
-        // Récupère l'ID du produit depuis la session
-        $productId = $product_id;
+        $ticketType = $request->input('ticket_type'); // Récupérer le type de ticket
 
         foreach ($request->file('tickets') as $file) {
-            //Utilisation du parser pour extraire partner_id et partner_code
-            $parsedData = $pdfParser->getText($file->getPathname());
 
-            // Maintenant, tu peux extraire les valeurs du texte
-            $info = explode("|",$parsedData);
+            // Utiliser un parsing différent en fonction du type de ticket
+            //Possibilité d'ajouter des conditions pour d'autres types de tickets
+            if ($ticketType == 'majestic') {
+                $parsedData = $pdfParser->getTextMajestic($file->getPathname());
+            } else {
+                $parsedData = $pdfParser->getTextForStandard($file->getPathname());
+            }
+            
+            $info = explode("|",$parsedData); //séparateur entre les informations parsées dans le ticket
 
+            //Récupération des informations sous forme de tableau
             $validitydate = $info[0] ?? null;
             $partnerId = $info[1] ?? null;
             $partnerCode = $info[2] ?? null;
@@ -124,20 +140,18 @@ class TicketController extends Controller
             $fileName = $partnerId . '.pdf';
             $path = $file->storeAs('tickets', $fileName, 'public');
 
-            //Storage::disk('public')->put('tickets', $request->file('tickets'));
-
-            // Enregistrement en BDD
+            // Enregistrement en BDD (logique à séparer entre le modèle et le contrôleur si voulu)
             Ticket::create([
-                'product_id' => $productId,
-                'user_id' => 1, // amodifier car acheteur
-                'site_id' => 1, //a modifier en fonction du site voulu
+                'product_id' => $product_id,
+                'user_id' => 1, // amodifier car acheteur, mettre nullable dans la BDD et ajouter lorsque le ticket est acheter
+                'site_id' => 1, //a modifier en fonction du site voulu (éventuellement un select)
                 'ticket_link' => $path,
                 'partner_code' => $partnerCode,
                 'partner_id' => $partnerId,
                 'validity_date' => $dt,
-                'purchase_date' => null,
+                'purchase_date' => null, // à update lors de l'achat
                 'created_at'=> now(),
-                'updated_at'=> now()
+                'updated_at'=> now() // à update lors de l'achat
             ]);
 
             $uploadedTickets[] = $fileName;
@@ -149,6 +163,9 @@ class TicketController extends Controller
 
     }
 
+    /**
+     * Permet à l'utilisateur de visualiser un ticket.
+     */
     public function viewTicket(Request $request, $ticketId)
     {
 

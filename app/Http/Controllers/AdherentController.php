@@ -164,8 +164,8 @@ class AdherentController extends Controller
 
         // config la date dans le .env
         $year = (int)$year;
-        $startDate = $year . '-09-01';
-        $endDate = ($year + 1) . '-08-31';
+        $startDate = $year . '-08-01';
+        $endDate = ($year + 1) . '-07-31';
 
         $adherents = User::getUsersWithAdhesionsByDateRange($startDate, $endDate);
 

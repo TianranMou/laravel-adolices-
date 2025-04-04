@@ -45,7 +45,7 @@
             @endif
 
             @if(!empty($billeteries))
-                <!-- boutiques permanantes -->
+                <!-- boutiques permanentes -->
                 <br>
                 @if(!empty($shops))
                     <div id="billeteries">

@@ -23,13 +23,10 @@ class AccueilPageController extends Controller
      */
     public function index()
     {
-        // Generate the adhesion link
         $adhesion_link = route('adhesion');
 
-        // Retrieve the presentation text from the configuration
         $presentation = Config::findByLabel('presentation')->config_value ?? '';
 
-        // Get the currently authenticated user
         $current_user = Auth::user();
 
         // Determine if the user's adhesion is valid
@@ -39,10 +36,8 @@ class AccueilPageController extends Controller
             $adhesion_valid = $current_user ? $current_user->hasUpToDateAdhesion() : false;
         }
 
-        // Retrieve all available shops
-        $allShops = Shop::getAllAvalableShops();
+        $allShops = Shop::getAllAvailableShops();
 
-        // Separate shops into two categories: shops with an end date and billeteries (permanent shops)
         $shops = [];
         $billeteries = [];
 
@@ -56,7 +51,6 @@ class AccueilPageController extends Controller
             }
         }
 
-        // Return the homepage view with the required data
         return view('accueil', compact('adhesion_valid', 'current_user', 'adhesion_link', 'presentation', 'shops', 'billeteries'));
     }
 }

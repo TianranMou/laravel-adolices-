@@ -12,6 +12,12 @@ class AchatsController extends Controller
         $this->middleware('auth');
     }
 
+
+    /**
+     * Display the list of aggregated tickets for the authenticated user.
+     *
+     * @return \Illuminate\View\View The view displaying the aggregated tickets and adhesion status.
+     */
     public function index()
     {
         $user = auth()->user();
